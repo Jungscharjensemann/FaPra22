@@ -1,0 +1,123 @@
+<shapes>
+    <shape name="xor" aspect="fixed" strokewidth="inherit">
+        <background>
+            <path>
+                <move x="0" y="0"/>
+                <quad x1="100" y1="0" x2="100" y2="50"/>
+                <quad x1="100" y1="100" x2="0" y2="100"/>
+                <quad x1="50" y1="50" x2="0" y2="0"/>
+                <close/>
+            </path>
+        </background>
+        <foreground>
+            <fillstroke/>
+            <fontcolor color="#ffffff"/>
+            <fontstyle style="1"/>
+            <text str="Oben" x="14" y="6" align="left" valign="top"/>
+            <text str="Unten" x="14" y="94" align="left" valign="bottom"/>
+        </foreground>
+    </shape>
+    <shape name="and" aspect="fixed" w="100">
+        <background>
+            <linejoin join="round"/>
+            <path>
+                <move x="0"   y="50"  />
+                <line x="50"  y="0"   />
+                <line x="100" y="50"  />
+                <line x="50"  y="100" />
+                <close/>
+            </path>
+        </background>
+        <foreground>
+            <fillstroke/>
+        </foreground>
+    </shape>
+    <shape name="test" strokewidth="inherit">
+        <connections>
+            <constraint x="0" y="0" perimeter="1" />
+            <constraint x="0.5" y="0" perimeter="1" />
+            <constraint x="1" y="0" perimeter="1" />
+            <constraint x="0" y="0.5" perimeter="1" />
+            <constraint x="1" y="0.5" perimeter="1" />
+            <constraint x="0" y="1" perimeter="1" />
+            <constraint x="0.5" y="1" perimeter="1" />
+            <constraint x="1" y="1" perimeter="1" />
+        </connections>
+        <background>
+            <path>
+                <move x="0" y="0" />
+                <line x="80" y="0" />
+                <line x="100" y="50" />
+                <line x="80" y="100" />
+                <line x="0" y="100" />
+                <close />
+            </path>
+            <stroke />
+        </background>
+    </shape>
+    <shape name="collection" strokewidth="inherit">
+        <background>
+            <strokecolor color="#000000" />
+            <fillcolor color="#ffffa8" />
+            <roundrect x="0" y="0" w="100" h="100" arcsize="50"/>
+        </background>
+        <foreground>
+            <fillstroke/>
+        </foreground>
+    </shape>
+    <shape name="plugin" strokewidth="2">
+        <background>
+            <fillcolor color="#ccfdcc" />
+            <rect x="0" y="0" w="100" h="100" />
+        </background>
+        <foreground>
+            <fillstroke />
+            <stroke />
+        </foreground>
+    </shape>
+    <shape name="fusion" strokewidth="4">
+        <background>
+            <dashpattern pattern="14 10" />
+            <dashed dashed="1" />
+            <rect x="0" y="0" w="100" h="100" />
+            <fillcolor color="#a0a0a0" />
+        </background>
+        <foreground>
+            <fillstroke />
+            <stroke />
+        </foreground>
+    </shape>
+    <shape name="pentagon" aspect="fixed" strokewidth="inherit">
+        <background>
+            <path>
+                <move x="0" y="100" />
+                <line x="87" y="100" />
+                <line x="100" y="50" />
+                <line x="87" y="0" />
+                <line x="0" y="0" />
+                <close />
+            </path>
+        </background>
+        <foreground>
+            <fillstroke />
+            <stroke />
+        </foreground>
+    </shape>
+    <shape name="hexagon2" strokewidth="inherit">
+        <background>
+            <path>
+                <move x="25" y="0" />
+                <line x="75" y="0" />
+                <line x="100" y="50" />
+                <line x="75" y="100" />
+                <line x="25" y="100" />
+                <line x="0" y="50" />
+                <close />
+            </path>
+        </background>
+        <foreground>
+            <fillstroke />
+            <stroke />
+        </foreground>
+    </shape>
+</shapes>
