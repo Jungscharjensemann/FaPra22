@@ -7,7 +7,7 @@ import org.w3c.dom.Element;
 
 import java.util.Set;
 
-public class CollectionElement implements IAssetComponent {
+public class AssetElement implements IAssetComponent {
 
     private String name, location;
 
@@ -15,7 +15,7 @@ public class CollectionElement implements IAssetComponent {
 
     private final EnumAsset enumAsset;
 
-    public CollectionElement(EnumAsset enumAsset) {
+    public AssetElement(EnumAsset enumAsset) {
         this.enumAsset = enumAsset;
     }
 
@@ -94,6 +94,9 @@ public class CollectionElement implements IAssetComponent {
 
     @Override
     public mxGeometry getGeometry() {
+        if(enumAsset != null) {
+            return enumAsset.getGeometry();
+        }
         return new mxGeometry(0, 0, 100, 40);
     }
 
@@ -103,6 +106,13 @@ public class CollectionElement implements IAssetComponent {
             return enumAsset.getStyle();
         }
         return "";
+    }
+
+    public String getIcon() {
+        if(enumAsset != null) {
+            return enumAsset.getIcon();
+        }
+        return "collection.png";
     }
 
     @Override

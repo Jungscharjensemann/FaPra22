@@ -7,6 +7,8 @@ import gcat.editor.graph.processingflow.elements.components.processing.interface
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.TreeMap;
 
@@ -101,5 +103,17 @@ public class FusionElement implements IProcessingComponent {
         fusionDefinition.setAttribute("name", getName());
         fusionDefinition.setAttribute("class", getClassPath());
         return fusionDefinition;
+    }
+
+    public List<Element> generateParamDefinition(Document document) {
+        List<Element> paramDefinitions = new ArrayList<>();
+        parameters.forEach((k, v) -> {
+            Element e = document.createElement("param");
+            //e.setAttribute(String.format("%s.%s", getName(), k), String.valueOf(v));
+            e.setAttribute("name", String.format("%s.%s", getName(), k));
+            e.setAttribute("value", String.valueOf(v));
+            paramDefinitions.add(e);
+        });
+        return paramDefinitions;
     }
 }

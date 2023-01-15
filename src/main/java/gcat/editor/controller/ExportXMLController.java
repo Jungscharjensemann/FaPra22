@@ -1,13 +1,15 @@
 package gcat.editor.controller;
 
-import com.mxgraph.io.mxCodec;
+import gcat.editor.util.XmlUtil;
 import gcat.editor.view.EditorMainFrame;
 import gcat.editor.view.dialog.ExportDialog;
+import gcat.editor.view.filechooser.Filter;
 import org.w3c.dom.Document;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 
 public class ExportXMLController implements ActionListener {
 
@@ -21,11 +23,21 @@ public class ExportXMLController implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         Document source = reference.getEditorGraph().createDocument();
         ExportDialog exportDialog = new ExportDialog(source);
-        int result = JOptionPane.showOptionDialog(null, exportDialog, "Ergebnis",
+        int optionDialog = JOptionPane.showOptionDialog(null, exportDialog, "Ergebnis",
                 JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, new Object[] {"Exportieren", "Abbrechen"}, null);
-        if(result == 0) {
-            mxCodec codec = new mxCodec();
-            codec.encode(reference.getEditorGraph());
+        if(optionDialog == 0) {
+            JFileChooser fileChooser = new JFileChooser();
+            Filter filter = new Filter(".xml", ".xml (Extensible Markup Language)");
+            fileChooser.addChoosableFileFilter(filter);
+            fileChooser.setFileFilter(filter);
+            int saveDialog = fileChooser.showSaveDialog(reference);
+            if(saveDialog == JFileChooser.APPROVE_OPTION) {
+                File f = fileChooser.getSelectedFile();
+                if(!f.getName().endsWith(".xml")) {
+                    f = new File(f.getParent() + File.separator + f.getName() + ".xml");
+                }
+                XmlUtil.createXML(f, source);
+            }
         }
     }
 }

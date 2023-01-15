@@ -57,6 +57,8 @@ public class EditorMainFrame extends JFrame {
 
     private JLabel errorLabel;
 
+    private GraphEventListener graphEventListener;
+
     public EditorMainFrame() {
         initFrame();
         configureFrame();
@@ -86,10 +88,6 @@ public class EditorMainFrame extends JFrame {
 
     private void configureFrame() {
         try {
-            //UIManager.put("TaskPane.titleBackgroundGradientStart", new Color(162, 158, 158));
-            //UIManager.put("TaskPane.titleBackgroundGradientEnd", new Color(162, 158, 158));
-            //UIManager.put("TaskPane.borderColor", Color.GRAY);
-            //UIManager.put("TaskPane.titleOver", Color.GREEN);
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
             ImageIcon icon = new ImageIcon(Objects.requireNonNull(getClass().getClassLoader().getResource("images/gcat.png")));
             setIconImage(icon.getImage());
@@ -124,6 +122,22 @@ public class EditorMainFrame extends JFrame {
 
         JMenu fileMenu = new JMenu("Datei");
         menuBar.add(fileMenu);
+
+        /*
+         * Speichern
+         */
+
+        JMenuItem saveMenuItem = new JMenuItem("Speichern");
+        saveMenuItem.addActionListener(new SaveAndLoadController(this));
+        saveMenuItem.setActionCommand("saveFile");
+
+        /*
+         * Laden
+         */
+
+        JMenuItem loadMenuItem = new JMenuItem("Laden");
+        loadMenuItem.addActionListener(new SaveAndLoadController(this));
+        loadMenuItem.setActionCommand("loadFile");
 
         /*
          * Exportieren
@@ -190,7 +204,12 @@ public class EditorMainFrame extends JFrame {
         compactItem.addActionListener(layoutController);
         layoutMenuItem.add(compactItem);
 
+
+        fileMenu.add(loadMenuItem);
+        fileMenu.add(saveMenuItem);
+        fileMenu.addSeparator();
         fileMenu.add(exportMenuItem);
+        fileMenu.addSeparator();
         fileMenu.add(layoutMenuItem);
 
         setJMenuBar(menuBar);
@@ -220,10 +239,8 @@ public class EditorMainFrame extends JFrame {
 
         innerSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
         innerSplitPane.setOneTouchExpandable(true);
-        //innerSplitPane.setDividerLocation(0.5);
         innerSplitPane.setResizeWeight(0.84);
         innerSplitPane.setDividerSize(6);
-        //innerSplitPane.setMinimumSize(new Dimension(220, -1));
         innerSplitPane.setBorder(null);
 
         JPanel leftPane = new JPanel();
@@ -262,43 +279,6 @@ public class EditorMainFrame extends JFrame {
 
         leftScrollPane.setViewportView(scrollPanePortView);
 
-        /*GoogleVisionAPIJXTaskPane c1 = new GoogleVisionAPIJXTaskPane();
-        GoogleVisionAPIJXTaskPane c2 = new GoogleVisionAPIJXTaskPane();
-        GoogleVisionAPIJXTaskPane c3 = new GoogleVisionAPIJXTaskPane();
-
-        c1.setCollapsed(true);
-
-        //scrollPanePortView.setLayout(new MigLayout("", "[grow]", "[]".repeat(1)));
-        GridBagLayout gridBagLayout = new GridBagLayout();
-        gridBagLayout.rowWeights = new double[] {0.0, 0.0};
-        gridBagLayout.columnWeights = new double[] {1.0};
-        scrollPanePortView.setLayout(gridBagLayout);
-
-        GoogleVisionPallete googleVisionPallete = new GoogleVisionPallete();
-        //googleVisionPallete.setPreferredWidth(220);
-
-        //scrollPanePortView.add(googleVisionPallete, "growx, aligny top");
-        //scrollPanePortView.add(googleVisionPallete, "growx, aligny top");
-        //scrollPanePortView.add(c1, "cell 0 1, growx, aligny top");
-
-        GridBagConstraints gbc_c1 = new GridBagConstraints();
-        gbc_c1.anchor = GridBagConstraints.NORTH;
-        gbc_c1.fill = GridBagConstraints.HORIZONTAL;
-        gbc_c1.gridx = 0;
-        gbc_c1.gridy = 0;
-        gbc_c1.gridwidth = 1;
-
-        GridBagConstraints gbc_c2 = new GridBagConstraints();
-        gbc_c2.anchor = GridBagConstraints.NORTH;
-        gbc_c2.fill = GridBagConstraints.HORIZONTAL;
-        gbc_c2.gridx = 0;
-        gbc_c2.gridy = 1;
-        gbc_c2.gridwidth = 1;
-        gbc_c2.weighty = 1;
-
-        scrollPanePortView.add(googleVisionPallete, gbc_c1);
-        scrollPanePortView.add(c2, gbc_c2)*/
-
         ArrayList<EditorPalette> paletteList = new ArrayList<>();
 
         {
@@ -319,16 +299,9 @@ public class EditorMainFrame extends JFrame {
 
         scrollPanePortView.setLayout(new MigLayout("" , "[grow]", "[]".repeat(paletteList.size())));
 
-        //GoogleVisionPallete googleVisionPallete = new GoogleVisionPallete();
-        //googleVisionPallete.setBorder(new PaneB);
-        //GoogleVisionAPIJXTaskPane c1 = new GoogleVisionAPIJXTaskPane();
-
         for(int i = 0; i < paletteList.size(); i++) {
             scrollPanePortView.add(paletteList.get(i), String.format("cell 0 %s, growx, aligny top", i));
         }
-
-        //scrollPanePortView.add(googleVisionPallete, "cell 0 1, growx, aligny top");
-        //scrollPanePortView.add(c1, "cell 0 2, growx, aligny top");
 
         // Left / Right Outer Component
 
@@ -362,7 +335,7 @@ public class EditorMainFrame extends JFrame {
 
 
         mainPanel.add(outerSplitPane, BorderLayout.CENTER);
-        mainPanel.add(new JLabel("Status"), BorderLayout.SOUTH);
+        //mainPanel.add(new JLabel("Status"), BorderLayout.SOUTH);
     }
 
     private void initHandlers() {
@@ -371,37 +344,31 @@ public class EditorMainFrame extends JFrame {
         editorKeyBoardHandler = new EditorKeyBoardHandler(this, editorGraphComponent);
     }
 
-    private void initListeners() {
+    public void initListeners() {
+        graphEventListener = new GraphEventListener(this);
+
         undoManager = new mxUndoManager();
+        undoManager.addListener(mxEvent.UNDO, graphEventListener);
+        undoManager.addListener(mxEvent.REDO, graphEventListener);
 
-        GraphEventListener graphEventListener = new GraphEventListener(this);
-
-        //editorGraph.addListener(mxEvent.CELLS_ADDED, graphEventListener);
-        //editorGraph.addListener(mxEvent.CELL_CONNECTED, graphEventListener);
         editorGraph.addListener(mxEvent.CELL_CONNECTED, new GraphEdgeEventController(this));
 
         editorGraph.getModel().addListener(mxEvent.CONNECT_CELL, graphEventListener);
 
-        /*editorGraphComponent.getGraphControl().addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                super.mouseClicked(e);
-                mxCell cell = (mxCell) editorGraphComponent.getCellAt(e.getX(), e.getY());
-                System.out.println(cell);
-            }
-        });*/
-
         editorGraphComponent.getGraphControl().addMouseListener(new TestController(this));
         editorGraph.getSelectionModel().addListener(mxEvent.MARK, graphEventListener);
 
+        initModelListeners();
+        initViewListeners();
+    }
+
+    public void initModelListeners() {
         editorGraph.getModel().addListener(mxEvent.CHANGE, graphEventListener);
-
         editorGraph.getModel().addListener(mxEvent.UNDO, graphEventListener);
+    }
 
+    private void initViewListeners() {
         editorGraph.getView().addListener(mxEvent.UNDO, graphEventListener);
-
-        undoManager.addListener(mxEvent.UNDO, graphEventListener);
-        undoManager.addListener(mxEvent.REDO, graphEventListener);
     }
 
     public Action bind(String name, final Action action)

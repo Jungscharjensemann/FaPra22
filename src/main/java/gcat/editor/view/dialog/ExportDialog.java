@@ -1,5 +1,6 @@
 package gcat.editor.view.dialog;
 
+import gcat.editor.util.XmlUtil;
 import net.miginfocom.swing.MigLayout;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
@@ -10,21 +11,12 @@ import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 import java.awt.*;
 import java.io.StringWriter;
 
 public class ExportDialog extends JPanel {
 
-    private Document document;
-
     public ExportDialog(Document document) {
-        this.document = document;
         setLayout(new BorderLayout());
         JPanel optionPanel = new JPanel();
         optionPanel.setLayout(new MigLayout("", "[left]5[25%]"));
@@ -59,7 +51,7 @@ public class ExportDialog extends JPanel {
         syntaxTextArea.setCodeFoldingEnabled(true);
         syntaxTextArea.setEditable(false);
 
-        syntaxTextArea.setText(getXML(document));
+        syntaxTextArea.setText(XmlUtil.getXML(document, new StringWriter()));
 
         RTextScrollPane scrollPane = new RTextScrollPane(syntaxTextArea);
         cp.add(scrollPane);
@@ -68,7 +60,7 @@ public class ExportDialog extends JPanel {
             @Override
             public void insertUpdate(DocumentEvent e) {
                 document.getDocumentElement().setAttribute("name", nameField.getText());
-                syntaxTextArea.setText(getXML(document));
+                syntaxTextArea.setText(XmlUtil.getXML(document, new StringWriter()));
             }
 
             @Override
@@ -81,21 +73,11 @@ public class ExportDialog extends JPanel {
             }
         });
 
-        /*nameField.addActionListener(e -> {
-            document.getDocumentElement().setAttribute("name", nameField.getText());
-            syntaxTextArea.setText(getXML(document));
-        });*/
-
-        /*extensionField.addActionListener(e -> {
-            document.getDocumentElement().setAttribute("extension", extensionField.getText());
-            syntaxTextArea.setText(getXML(document));
-        });*/
-
         extensionField.getDocument().addDocumentListener(new DocumentListener() {
             @Override
             public void insertUpdate(DocumentEvent e) {
                 document.getDocumentElement().setAttribute("extension", extensionField.getText());
-                syntaxTextArea.setText(getXML(document));
+                syntaxTextArea.setText(XmlUtil.getXML(document, new StringWriter()));
             }
 
             @Override
@@ -111,29 +93,9 @@ public class ExportDialog extends JPanel {
 
         generalCheckBox.addItemListener(e -> {
             document.getDocumentElement().setAttribute("isGeneral", String.valueOf(generalCheckBox.isSelected()));
-            syntaxTextArea.setText(getXML(document));
+            syntaxTextArea.setText(XmlUtil.getXML(document, new StringWriter()));
         });
 
         add(cp, BorderLayout.CENTER);
-    }
-
-    private String getXML(Document document) {
-        StringWriter writer = new StringWriter();
-        try {
-            Transformer transformer = TransformerFactory.newInstance().newTransformer();
-            transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
-            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-            transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "3");
-
-            transformer.transform(
-                    new DOMSource(document),
-                    new StreamResult(writer));
-        } catch (TransformerException ex) {
-            throw new RuntimeException(ex);
-        }
-
-
-
-        return writer.toString();
     }
 }

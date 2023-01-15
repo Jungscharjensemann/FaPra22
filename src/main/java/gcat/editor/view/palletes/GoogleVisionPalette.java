@@ -1,7 +1,5 @@
 package gcat.editor.view.palletes;
 
-import gcat.editor.graph.processingflow.elements.components.asset.CollectionElement;
-import gcat.editor.graph.processingflow.elements.components.asset.EnumAsset;
 import gcat.editor.graph.processingflow.elements.components.processing.enums.EnumPlugin;
 import gcat.editor.graph.processingflow.elements.components.processing.plugin.PluginElement;
 import gcat.editor.view.EditorPalette;

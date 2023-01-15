@@ -1,6 +1,6 @@
 package gcat.editor.view.palletes;
 
-import gcat.editor.graph.processingflow.elements.components.asset.CollectionElement;
+import gcat.editor.graph.processingflow.elements.components.asset.AssetElement;
 import gcat.editor.graph.processingflow.elements.components.asset.EnumAsset;
 import gcat.editor.view.EditorPalette;
 
@@ -21,6 +21,7 @@ public class MiscellaneousPalette extends EditorPalette {
         addPluginTemplate("ProcessFlowPlugin", "de.swa.gmaf.plugin.ProcessFlowPlugin",
                 null, null, null);*/
 
-        addFolderTemplate(new CollectionElement(EnumAsset.COLLECTION));
+        addFolderTemplate(new AssetElement(EnumAsset.COLLECTION));
+        addFolderTemplate(new AssetElement(EnumAsset.DATABASE));
     }
 }

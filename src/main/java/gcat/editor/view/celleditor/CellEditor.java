@@ -2,9 +2,7 @@ package gcat.editor.view.celleditor;
 
 import gcat.editor.graph.processingflow.elements.components.processing.interfaces.IPFComponent;
 import gcat.editor.graph.processingflow.elements.components.processing.interfaces.IProcessingComponent;
-import gcat.editor.graph.processingflow.elements.components.processing.plugin.PluginElement;
 import gcat.editor.view.EditorMainFrame;
-import gcat.editor.view.EditorPalette;
 import gcat.editor.view.celleditor.model.ParameterTableModel;
 import gcat.editor.view.celleditor.model.PropertyTableModel;
 import gcat.editor.view.celleditor.renderer.HeaderRenderer;
@@ -26,10 +24,7 @@ public class CellEditor extends JPanel {
 
     private IPFComponent component;
 
-    private EditorMainFrame editorMainFrame;
-
     public CellEditor(EditorMainFrame reference) {
-        this.editorMainFrame = reference;
         setLayout(new MigLayout("", "[grow]", "[]"));
         JLabel lblNewLabel = new JLabel("Cell Editor");
         lblNewLabel.setFont(new Font("Tahoma", Font.PLAIN, 16));
@@ -41,7 +36,7 @@ public class CellEditor extends JPanel {
 
         CellTable propertyTable = new CellTable();
         propertyTable.getTableHeader().setDefaultRenderer(new HeaderRenderer(propertyTable.getTableHeader()));
-        propertyTableModel = new PropertyTableModel(editorMainFrame);
+        propertyTableModel = new PropertyTableModel(reference);
         propertyTable.setModel(propertyTableModel);
 
         propertyScrollPane.setViewportView(propertyTable);
@@ -112,10 +107,10 @@ public class CellEditor extends JPanel {
             this.component = component;
             propertyTableModel.setCurentIPFComponent(component);
             revalidate();
-            if(component instanceof PluginElement) {
+            if(component instanceof IProcessingComponent) {
                 parameterPanel.setVisible(true);
                 //parameterTableModel.setParameters(((IProcessingComponent) component).getParameters());
-                setParameters(((PluginElement) component).getParameters());
+                setParameters(((IProcessingComponent) component).getParameters());
             } else {
                 parameterPanel.setVisible(false);
             }

@@ -5,7 +5,7 @@ import com.mxgraph.model.mxGeometry;
 import com.mxgraph.swing.util.mxGraphTransferable;
 import com.mxgraph.swing.util.mxSwingConstants;
 import com.mxgraph.util.*;
-import gcat.editor.graph.processingflow.elements.components.asset.CollectionElement;
+import gcat.editor.graph.processingflow.elements.components.asset.AssetElement;
 import gcat.editor.graph.processingflow.elements.components.processing.ProcessingFlowComponent;
 import gcat.editor.graph.processingflow.elements.components.processing.fusion.FusionElement;
 import gcat.editor.graph.processingflow.elements.components.processing.plugin.PluginElement;
@@ -136,11 +136,12 @@ public class EditorPalette extends JXTaskPane {
         addTemplate(name, icon, cell);
     }
 
-    public void addFolderTemplate(CollectionElement collection) {
+    public void addFolderTemplate(AssetElement collection) {
         ProcessingFlowComponent cell = new ProcessingFlowComponent(collection);
         cell.setVertex(true);
 
-        addTemplate(collection.getLabel(), new ImageIcon(Objects.requireNonNull(getClass().getClassLoader().getResource("images/collection.png"))), cell);
+        addTemplate(collection.getLabel(),
+                new ImageIcon(Objects.requireNonNull(getClass().getClassLoader().getResource(String.format("images/%s", collection.getIcon())))), cell);
     }
 
     public void addPluginTemplate(PluginElement plugin) {

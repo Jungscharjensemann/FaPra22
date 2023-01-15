@@ -44,6 +44,14 @@
 		<add as="shape" value="rectangle"/>
 	</add>
 
+	<add as="databaseVertex">
+		<add as="fillColor" value="#d56bed"/>
+		<add as="gradientColor" value="ffffff" />
+		<add as="gradientDirection" value="east" />
+		<add as="strokeWidth" value="2" />
+		<add as="shape" value="cylinder"/>
+	</add>
+
 	<add as="defaultEdge" extend="defaultEdge">
 		<add as="labelBackgroundColor" value="white"/>
 		<add as="edgeStyle" value="elbowEdgeStyle"/>
