@@ -13,9 +13,6 @@ public class EditorKeyBoardHandler extends mxKeyboardHandler {
 
     private final EditorMainFrame editorMainFrame;
 
-    /**
-     * @param graphComponent
-     */
     public EditorKeyBoardHandler(EditorMainFrame editorGraphComponentParent, mxGraphComponent graphComponent) {
         super(graphComponent);
         editorMainFrame = editorGraphComponentParent;
@@ -27,16 +24,8 @@ public class EditorKeyBoardHandler extends mxKeyboardHandler {
 
         if (condition == JComponent.WHEN_FOCUSED && map != null)
         {
-            /*map.put(KeyStroke.getKeyStroke("control S"), "save");
-            map.put(KeyStroke.getKeyStroke("control shift S"), "saveAs");
-            map.put(KeyStroke.getKeyStroke("control N"), "new");
-            map.put(KeyStroke.getKeyStroke("control O"), "open");*/
-
             map.put(KeyStroke.getKeyStroke("control Z"), "undo");
             map.put(KeyStroke.getKeyStroke("control Y"), "redo");
-
-            /*map.put(KeyStroke.getKeyStroke("control shift V"), "selectVertices");
-            map.put(KeyStroke.getKeyStroke("control shift E"), "selectEdges");*/
         }
 
         return map;
@@ -47,10 +36,6 @@ public class EditorKeyBoardHandler extends mxKeyboardHandler {
     {
         ActionMap map = super.createActionMap();
 
-        /*map.put("save", new EditorActions.SaveAction(false));
-        map.put("saveAs", new EditorActions.SaveAction(true));
-        map.put("new", new EditorActions.NewAction());
-        map.put("open", new EditorActions.OpenAction());*/
         map.put("undo", new UndoRedoAction(true));
         map.put("redo", new UndoRedoAction(false));
         map.put("selectVertices", mxGraphActions.getSelectVerticesAction());

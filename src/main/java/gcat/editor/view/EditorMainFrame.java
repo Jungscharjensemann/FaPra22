@@ -14,7 +14,6 @@ import gcat.editor.graph.EditorGraph;
 import gcat.editor.graph.EditorGraphComponent;
 import gcat.editor.view.celleditor.CellEditor;
 import gcat.editor.view.palletes.*;
-import gcat.editor.view.table.CellParameterEditor;
 import net.miginfocom.swing.MigLayout;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -22,40 +21,19 @@ import org.w3c.dom.NodeList;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Objects;
 
 public class EditorMainFrame extends JFrame {
 
-    private JPanel mainPanel;
-
     private EditorGraph editorGraph;
 
     private EditorGraphComponent editorGraphComponent;
 
-    private CellParameterEditor cellParameterEditor;
-
     private CellEditor cellEditor;
 
     private mxUndoManager undoManager;
-
-    private boolean modified = false;
-
-    private JSplitPane outerSplitPane, innerSplitPane, rightOuterSplitPane;
-
-    private JPanel scrollPanePortView;
-
-    private JScrollPane leftScrollPane;
-
-    private mxGraphOutline graphOutline;
-
-    private mxRubberband mxRubberband;
-
-    private EditorKeyBoardHandler editorKeyBoardHandler;
-
-    private JLabel errorLabel;
 
     private GraphEventListener graphEventListener;
 
@@ -221,7 +199,7 @@ public class EditorMainFrame extends JFrame {
 
         editorGraphComponent = new EditorGraphComponent(editorGraph);
 
-        mainPanel = new JPanel();
+        JPanel mainPanel = new JPanel();
 
         getContentPane().add(mainPanel);
 
@@ -229,7 +207,7 @@ public class EditorMainFrame extends JFrame {
 
         // Outer SplitPane
 
-        outerSplitPane = new JSplitPane();
+        JSplitPane outerSplitPane = new JSplitPane();
         outerSplitPane.setOneTouchExpandable(true);
         outerSplitPane.setDividerLocation(220);
         outerSplitPane.setDividerSize(6);
@@ -237,7 +215,7 @@ public class EditorMainFrame extends JFrame {
 
         // Inner SplitPane
 
-        innerSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+        JSplitPane innerSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
         innerSplitPane.setOneTouchExpandable(true);
         innerSplitPane.setResizeWeight(0.84);
         innerSplitPane.setDividerSize(6);
@@ -252,11 +230,11 @@ public class EditorMainFrame extends JFrame {
 
         leftPane.add(paletteLabel, BorderLayout.NORTH);
 
-        scrollPanePortView = new JPanel();
+        JPanel scrollPanePortView = new JPanel();
 
         // SplitPane - Inner Left Component
 
-        leftScrollPane = new JScrollPane(scrollPanePortView);
+        JScrollPane leftScrollPane = new JScrollPane(scrollPanePortView);
         leftScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         leftScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         leftScrollPane.getVerticalScrollBar().setUnitIncrement(10);
@@ -266,7 +244,7 @@ public class EditorMainFrame extends JFrame {
 
         // Graph Outline - Inner Right Component
 
-        graphOutline = new mxGraphOutline(editorGraphComponent);
+        mxGraphOutline graphOutline = new mxGraphOutline(editorGraphComponent);
         graphOutline.setFitPage(true);
 
         // Left / Right Inner Component
@@ -283,8 +261,9 @@ public class EditorMainFrame extends JFrame {
 
         {
             paletteList.add(new FusionPalette());
-            //paletteList.add(new FilterPalette());
-            //paletteList.add(new ExtensionsPalette());
+
+            // Weitere Paletten für eventuelle Extensions, Filter etc.
+
             paletteList.add(new AssetPalette());
             paletteList.add(new AlgorithmicPalette());
             paletteList.add(new AudioPalette());
@@ -307,7 +286,7 @@ public class EditorMainFrame extends JFrame {
         outerSplitPane.setLeftComponent(innerSplitPane);
 
 
-        rightOuterSplitPane = new JSplitPane();
+        JSplitPane rightOuterSplitPane = new JSplitPane();
         rightOuterSplitPane.setOneTouchExpandable(true);
         rightOuterSplitPane.setResizeWeight(0.9);
         rightOuterSplitPane.setDividerSize(6);
@@ -316,16 +295,10 @@ public class EditorMainFrame extends JFrame {
         JPanel rightOuterLeft = new JPanel();
         rightOuterLeft.setLayout(new BorderLayout());
 
-        errorLabel = new JLabel();
-        errorLabel.setFont(new Font("Tahoma", Font.PLAIN, 20));
-        errorLabel.setHorizontalAlignment(JLabel.CENTER);
-
-        rightOuterLeft.add(errorLabel, BorderLayout.NORTH);
         rightOuterLeft.add(editorGraphComponent, BorderLayout.CENTER);
 
         rightOuterSplitPane.setLeftComponent(rightOuterLeft);
 
-        cellParameterEditor = new CellParameterEditor();
         cellEditor = new CellEditor(this);
 
         rightOuterSplitPane.setRightComponent(cellEditor);
@@ -334,13 +307,15 @@ public class EditorMainFrame extends JFrame {
 
 
         mainPanel.add(outerSplitPane, BorderLayout.CENTER);
-        //mainPanel.add(new JLabel("Status"), BorderLayout.SOUTH);
     }
 
     private void initHandlers() {
-        mxRubberband = new mxRubberband(editorGraphComponent);
+        mxRubberband mxRubberband = new mxRubberband(editorGraphComponent);
+        Color fill = new Color(255, 255, 255, 80);
+        mxRubberband.setFillColor(fill);
+        mxRubberband.setBorderColor(Color.red);
 
-        editorKeyBoardHandler = new EditorKeyBoardHandler(this, editorGraphComponent);
+        new EditorKeyBoardHandler(this, editorGraphComponent);
     }
 
     public void initListeners() {
@@ -350,11 +325,9 @@ public class EditorMainFrame extends JFrame {
         undoManager.addListener(mxEvent.UNDO, graphEventListener);
         undoManager.addListener(mxEvent.REDO, graphEventListener);
 
-        //editorGraph.getModel().addListener(mxEvent.CELL_CONNECTED, new GraphEdgeEventController(this));
-
         editorGraph.getModel().addListener(mxEvent.CONNECT_CELL, graphEventListener);
 
-        editorGraphComponent.getGraphControl().addMouseListener(new TestController(this));
+        editorGraphComponent.getGraphControl().addMouseListener(new GraphVertexController(this));
         editorGraph.getSelectionModel().addListener(mxEvent.MARK, graphEventListener);
 
         initModelListeners();
@@ -370,49 +343,6 @@ public class EditorMainFrame extends JFrame {
         editorGraph.getView().addListener(mxEvent.UNDO, graphEventListener);
     }
 
-    public Action bind(String name, final Action action)
-    {
-        return bind(name, action, null);
-    }
-
-    /**
-     *
-     * @param name
-     * @param action
-     * @return a new Action bound to the specified string name and icon
-     */
-    @SuppressWarnings("serial")
-    public Action bind(String name, final Action action, String iconUrl)
-    {
-        AbstractAction newAction = new AbstractAction(name, (iconUrl != null) ? new ImageIcon(
-                Objects.requireNonNull(getClass().getClassLoader().getResource(iconUrl))) : null)
-        {
-            public void actionPerformed(ActionEvent e)
-            {
-                action.actionPerformed(new ActionEvent(getEditorGraphComponent(), e
-                        .getID(), e.getActionCommand()));
-            }
-        };
-
-        newAction.putValue(Action.SHORT_DESCRIPTION, action.getValue(Action.SHORT_DESCRIPTION));
-
-        return newAction;
-    }
-
-    public void setModified(boolean modified)
-    {
-        boolean oldValue = this.modified;
-        this.modified = modified;
-
-        firePropertyChange("modified", oldValue, modified);
-
-        if (oldValue != modified)
-        {
-            System.out.println("Modified");
-            //updateTitle();
-        }
-    }
-
     public EditorGraph getEditorGraph() {
         return editorGraph;
     }
@@ -425,15 +355,7 @@ public class EditorMainFrame extends JFrame {
         return editorGraphComponent;
     }
 
-    public CellParameterEditor getCellParameterEditor() {
-        return cellParameterEditor;
-    }
-
     public CellEditor getCellEditor() {
         return cellEditor;
-    }
-
-    public JLabel getErrorLabel() {
-        return errorLabel;
     }
 }

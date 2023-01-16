@@ -2,12 +2,12 @@ package gcat.editor.graph.traversal;
 
 import com.mxgraph.model.mxCell;
 import com.mxgraph.view.mxGraph;
-import gcat.editor.graph.processingflow.elements.components.asset.IAssetComponent;
-import gcat.editor.graph.processingflow.elements.components.processing.ProcessingFlowComponent;
-import gcat.editor.graph.processingflow.elements.components.processing.fusion.FusionElement;
-import gcat.editor.graph.processingflow.elements.components.processing.interfaces.IPFComponent;
-import gcat.editor.graph.processingflow.elements.components.processing.interfaces.IProcessingComponent;
-import gcat.editor.graph.processingflow.elements.components.processing.plugin.PluginElement;
+import gcat.editor.graph.processingflow.components.asset.IAssetComponent;
+import gcat.editor.graph.processingflow.components.processing.ProcessingFlowComponent;
+import gcat.editor.graph.processingflow.components.processing.fusion.FusionElement;
+import gcat.editor.graph.processingflow.components.processing.interfaces.IPFComponent;
+import gcat.editor.graph.processingflow.components.processing.interfaces.IProcessingComponent;
+import gcat.editor.graph.processingflow.components.processing.plugin.PluginElement;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 

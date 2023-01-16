@@ -1,8 +1,8 @@
 package gcat.editor.view.celleditor.model;
 
-import gcat.editor.graph.processingflow.elements.components.asset.IAssetComponent;
-import gcat.editor.graph.processingflow.elements.components.processing.interfaces.IPFComponent;
-import gcat.editor.graph.processingflow.elements.components.processing.interfaces.IProcessingComponent;
+import gcat.editor.graph.processingflow.components.asset.IAssetComponent;
+import gcat.editor.graph.processingflow.components.processing.interfaces.IPFComponent;
+import gcat.editor.graph.processingflow.components.processing.interfaces.IProcessingComponent;
 import gcat.editor.view.EditorMainFrame;
 
 import javax.swing.table.DefaultTableModel;

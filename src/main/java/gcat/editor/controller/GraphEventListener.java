@@ -25,20 +25,10 @@ public class GraphEventListener implements mxEventSource.mxIEventListener {
                 editorMainFrame.getEditorGraphComponent().validateGraph();
                 System.out.println("Change occured!");
                 break;
-            case mxEvent.CELLS_ADDED:
-                System.out.println("Added");
-                break;
-            case mxEvent.CELL_CONNECTED:
-                System.out.println("Connected");
-                break;
-            case mxEvent.CONNECT_CELL:
-                System.out.println("Connecting...?");
-                break;
             case mxEvent.UNDO:
                 if(sender instanceof mxIGraphModel || sender instanceof mxGraphView) {
                     mxUndoManager undoManager = editorMainFrame.getUndoManager();
                     undoManager.undoableEditHappened((mxUndoableEdit) evt.getProperty("edit"));
-
                     System.out.println("Undoable edit happend!");
                 }
                 if(sender instanceof mxUndoManager) {
@@ -46,14 +36,7 @@ public class GraphEventListener implements mxEventSource.mxIEventListener {
                     List<mxUndoableEdit.mxUndoableChange> changes = undoableEdit.getChanges();
                     graph.setSelectionCells(graph.getSelectionCellsForChanges(changes));
                     System.out.println("Undo from UndoManager!");
-                    editorMainFrame.getErrorLabel().setText(null);
                 }
-                break;
-            case mxEvent.REPAINT:
-                System.out.println("Repaint...");
-                break;
-            case mxEvent.SELECT:
-                System.out.println(evt);
                 break;
         }
     }

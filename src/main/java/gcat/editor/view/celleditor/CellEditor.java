@@ -1,7 +1,7 @@
 package gcat.editor.view.celleditor;
 
-import gcat.editor.graph.processingflow.elements.components.processing.interfaces.IPFComponent;
-import gcat.editor.graph.processingflow.elements.components.processing.interfaces.IProcessingComponent;
+import gcat.editor.graph.processingflow.components.processing.interfaces.IPFComponent;
+import gcat.editor.graph.processingflow.components.processing.interfaces.IProcessingComponent;
 import gcat.editor.view.EditorMainFrame;
 import gcat.editor.view.celleditor.model.ParameterTableModel;
 import gcat.editor.view.celleditor.model.PropertyTableModel;
@@ -125,7 +125,6 @@ public class CellEditor extends JPanel {
             revalidate();
             if(component instanceof IProcessingComponent) {
                 parameterPanel.setVisible(true);
-                //parameterTableModel.setParameters(((IProcessingComponent) component).getParameters());
                 setParameters(((IProcessingComponent) component).getParameters());
             } else {
                 parameterPanel.setVisible(false);
