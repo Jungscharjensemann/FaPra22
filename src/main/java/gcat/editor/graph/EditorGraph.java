@@ -5,23 +5,17 @@ import com.mxgraph.analysis.mxAnalysisGraph;
 import com.mxgraph.analysis.mxGraphStructure;
 import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxGeometry;
-import com.mxgraph.util.mxConstants;
 import com.mxgraph.util.mxPoint;
 import com.mxgraph.view.mxCellState;
 import com.mxgraph.view.mxGraph;
 import gcat.editor.graph.cell_component.MultiMediaType;
-import gcat.editor.graph.cell_component.PFCellComponent;
-import gcat.editor.graph.cell_component.processing.PFExporterComponent;
-import gcat.editor.graph.cell_component.processing.PFFusionComponent;
-import gcat.editor.graph.cell_component.processing.PFPluginComponent;
+import gcat.editor.graph.processingflow.elements.components.asset.AssetElement;
 import gcat.editor.graph.processingflow.elements.components.asset.IAssetComponent;
 import gcat.editor.graph.processingflow.elements.components.processing.ProcessingFlowComponent;
 import gcat.editor.graph.processingflow.elements.components.processing.fusion.FusionElement;
 import gcat.editor.graph.processingflow.elements.components.processing.interfaces.IPFComponent;
 import gcat.editor.graph.processingflow.elements.components.processing.interfaces.IProcessingComponent;
 import gcat.editor.graph.processingflow.elements.components.processing.plugin.PluginElement;
-import gcat.editor.graph.traversal.IPFVisitor;
-import gcat.editor.graph.traversal.PFVisitor;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -31,23 +25,12 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.text.NumberFormat;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class EditorGraph extends mxGraph {
 
-    /**
-     * Holds the edge to be used as a template for inserting new edges.
-     */
-    protected Object edgeTemplate;
-
     public static final NumberFormat numberFormat = NumberFormat.getInstance();
 
-    /**
-     * Custom graph that defines the alternate edge style to be used when
-     * the middle control point of edges is double clicked (flipped).
-     */
-    public EditorGraph()
-    {
+    public EditorGraph() {
         setAllowLoops(true);
         setMultigraph(false);
         setAllowDanglingEdges(false);
@@ -55,38 +38,13 @@ public class EditorGraph extends mxGraph {
         setEdgeLabelsMovable(false);
         setKeepEdgesInBackground(true);
         setCellsEditable(false);
-
-        getStylesheet().setDefaultEdgeStyle(createDefaultEdgeStyle());
-    }
-
-    protected Map<String, Object> createDefaultEdgeStyle()
-    {
-        Map<String, Object> style = new Hashtable<String, Object>();
-
-        style.put(mxConstants.STYLE_SHAPE, mxConstants.SHAPE_CONNECTOR);
-        style.put(mxConstants.STYLE_ENDARROW, mxConstants.ARROW_CLASSIC);
-        //style.put(mxConstants.STYLE_ENDFILL, "#000000");
-        style.put(mxConstants.STYLE_ENDSIZE, 11);
-        //style.put(mxConstants.STYLE_VERTICAL_ALIGN, mxConstants.ALIGN_BOTTOM);
-        style.put(mxConstants.STYLE_ALIGN, mxConstants.ALIGN_CENTER);
-        style.put(mxConstants.STYLE_STROKECOLOR, "#6400B9");
-        //style.put(mxConstants.STYLE_LABEL_BORDERCOLOR, "#abd8f0");
-        style.put(mxConstants.STYLE_FONTCOLOR, "#42edd6");
-
-        return style;
-    }
-
-    /**
-     * Sets the edge template to be used to inserting edges.
-     */
-    public void setEdgeTemplate(Object template)
-    {
-        edgeTemplate = template;
+        setCellsResizable(false);
     }
 
     /**
      * Prints out some useful information about the cell in the tooltip.
      */
+    @Override
     public String getToolTipForCell(Object cell)
     {
         String tip = "<html>";
@@ -170,32 +128,6 @@ public class EditorGraph extends mxGraph {
         return tip;
     }
 
-    /*/**
-     * Overrides the method to use the currently selected edge template for
-     * new edges.
-     *
-     * @param parent
-     * @param id
-     * @param value
-     * @param source
-     * @param target
-     * @param style
-     * @return
-
-    public Object createEdge(Object parent, String id, Object value,
-                             Object source, Object target, String style)
-    {
-        if (edgeTemplate != null)
-        {
-            mxCell edge = (mxCell) cloneCells(new Object[] { edgeTemplate })[0];
-            edge.setId(id);
-
-            return edge;
-        }
-
-        return super.createEdge(parent, id, value, source, target, style);
-    }*/
-
     @Override
     public String validateEdge(Object edge, Object source, Object target) {
         System.out.printf("Validating %s with source %s and target %s%n", edge, source, target);
@@ -218,6 +150,39 @@ public class EditorGraph extends mxGraph {
             Set<MultiMediaType> outputSet = pfSource.getOutput();
             Set<MultiMediaType> inputSet = pfTarget.getInput();
 
+            if(pfSource instanceof AssetElement && pfTarget instanceof AssetElement) {
+                if(pfSource == pfTarget) {
+                    return "Assets erlauben keine Schlaufen auf sich selbst!";
+                }
+                return "Zwei Assets können nicht miteinander verbunden werden!";
+            }
+            if(pfSource instanceof AssetElement && pfTarget instanceof IProcessingComponent) {
+                if(((AssetElement) pfSource).isEnd()) {
+                    return "Als Endknoten markiertes Asset kann nicht mit \n" +
+                            "anderen Komponenten verbunden werden!";
+                }
+            }
+
+            if(outputSet == null && inputSet != null) {
+                if(!inputSet.isEmpty()) {
+                    ((mxCell) edge).setValue(
+                            inputSet.stream()
+                                    .map(MultiMediaType::getType)
+                                    .map(String::toLowerCase)
+                                    .collect(Collectors.joining(","))
+                    );
+                }
+            } else if(outputSet != null && inputSet == null) {
+                if(!outputSet.isEmpty()) {
+                    ((mxCell) edge).setValue(
+                            outputSet.stream()
+                                    .map(MultiMediaType::getType)
+                                    .map(String::toLowerCase)
+                                    .collect(Collectors.joining(","))
+                    );
+                }
+            }
+
             if(outputSet != null && inputSet != null) {
                 Sets.SetView<MultiMediaType> set = Sets.intersection(outputSet, inputSet);
 
@@ -233,34 +198,37 @@ public class EditorGraph extends mxGraph {
                 }
             }
         }
-
-        if(source instanceof PFCellComponent && target instanceof PFCellComponent) {
-
-            // Casting...
-            PFCellComponent sourceComponent = (PFCellComponent) source;
-            PFCellComponent targetComponent = (PFCellComponent) target;
-
-            // Ein- und Ausgabe
-            Set<MultiMediaType> outputSet = sourceComponent.getOutputType();
-            Set<MultiMediaType> inputSet = targetComponent.getInputType();
-
-            if(outputSet != null && inputSet != null) {
-                // Prüfen, ob sich Ein- und Ausgabe überschneiden...
-                Sets.SetView<?> set = Sets.intersection(outputSet, inputSet);
-                if(!set.isEmpty()) {
-                    // Label der Kante setzen...
-                    ((mxCell) edge).setValue(outputSet.stream().map(MultiMediaType::getType).map(String::toLowerCase).collect(Collectors.joining(",")));
-                } else {
-                    return "Ein- und Ausgabe sind inkompatibel!";
-                }
-            }
-        }
         return null;
     }
 
-    public void updateStart() {
-        //mxAnalysisGraph analysisGraph = getAnalysisGraph();
-        //Object[] cells = analysisGraph.getChildCells(getDefaultParent(), true, false);
+    public void updateStart(IAssetComponent assetComponent) {
+        mxAnalysisGraph aGraph = getAnalysisGraph();
+        Arrays.stream(aGraph.getChildCells(getDefaultParent(), true, false))
+                .filter(v -> v instanceof ProcessingFlowComponent)
+                .map(v -> (ProcessingFlowComponent) v)
+                .map(ProcessingFlowComponent::getPFComponent)
+                .filter(v -> v instanceof IAssetComponent)
+                .map(v -> (IAssetComponent) v)
+                .filter(v -> v != assetComponent && v.isStart())
+                .forEach(v -> {
+                    v.setStart(false);
+                    v.setEnd(true);
+                });
+    }
+
+    public void updateEnd(IAssetComponent assetComponent) {
+        mxAnalysisGraph aGraph = getAnalysisGraph();
+        Arrays.stream(aGraph.getChildCells(getDefaultParent(), true, false))
+                .filter(v -> v instanceof ProcessingFlowComponent)
+                .map(v -> (ProcessingFlowComponent) v)
+                .map(ProcessingFlowComponent::getPFComponent)
+                .filter(v -> v instanceof IAssetComponent)
+                .map(v -> (IAssetComponent) v)
+                .filter(v -> v != assetComponent && v.isEnd())
+                .forEach(v -> {
+                    v.setStart(true);
+                    v.setEnd(false);
+                });
     }
 
     @Override
@@ -277,13 +245,6 @@ public class EditorGraph extends mxGraph {
                 if(processingComponent instanceof FusionElement) {
                     ((FusionElement) processingComponent).setName(String.format("merge%s", countInstances(FusionElement.class)));
                 }
-            }
-            if(e instanceof PFPluginComponent) {
-                ((PFPluginComponent) e).setName(String.format("plugin%s", countInstances(PFPluginComponent.class)));
-            } else if(e instanceof PFFusionComponent) {
-                ((PFFusionComponent) e).setName(String.format("merge%s", countInstances(PFFusionComponent.class)));
-            } else if(e instanceof PFExporterComponent) {
-                ((PFExporterComponent) e).setName(String.format("export%s", countInstances(PFExporterComponent.class)));
             }
         });
     }
@@ -325,46 +286,6 @@ public class EditorGraph extends mxGraph {
         return Arrays.stream(getOutgoingEdges(cell)).map(c -> ((mxCell) c).getTarget()).collect(Collectors.toList());
     }
 
-    @Override
-    public void traverse(Object vertex, boolean directed, mxICellVisitor visitor) {
-        //super.traverse(vertex, directed, visitor);
-        //traverseGraph(vertex, directed, (IPFVisitor) visitor, null, null);
-    }
-
-    public void traverseGraph(Object vertex, boolean directed,
-                              IPFVisitor visitor, Object edge, Set<Object> notVisited) {
-        if(vertex != null && visitor != null) {
-            if(notVisited == null) {
-                mxAnalysisGraph aGraph = getAnalysisGraph();
-                Stream<Object> cellStream = Arrays.stream(aGraph.getChildCells(getDefaultParent(), true, false));
-                notVisited = cellStream.collect(Collectors.toSet());
-            }
-            if(notVisited.contains(vertex)) {
-                System.out.printf("Knoten %s wurde noch nicht besucht!\n", vertex);
-                boolean visited = visitor.visit(vertex, edge, notVisited);
-                if(visited) {
-                    notVisited.remove(vertex);
-                    System.out.printf("Knoten %s wurde erfolgreich besucht und wird entfernt!\n", vertex);
-                    int edgeCount = model.getEdgeCount(vertex);
-                    if(edgeCount > 0) {
-                        for (int i = 0; i < edgeCount; i++)
-                        {
-                            Object e = model.getEdgeAt(vertex, i);
-                            boolean isSource = model.getTerminal(e,
-                                    true) == vertex;
-
-                            if (!directed || isSource)
-                            {
-                                Object next = model.getTerminal(e, !isSource);
-                                traverseGraph(next, directed, visitor, e, notVisited);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
     public Document createDocument() {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder;
@@ -374,10 +295,8 @@ public class EditorGraph extends mxGraph {
             throw new RuntimeException(e);
         }
         Document document = builder.newDocument();
-        PFVisitor visitor = new PFVisitor(this, document);
         Object startVertex = getStartVertex();
 
-        //System.out.println(getNeighbours(startVertex));
         Stack<Object> stack = new Stack<>();
         topologialSort(startVertex, null, stack);
         Collections.reverse(stack);
@@ -395,11 +314,12 @@ public class EditorGraph extends mxGraph {
                 .map(o -> (ProcessingFlowComponent) o)
                 .forEach(comp -> {
                     IPFComponent pfComp = comp.getPFComponent();
-                    if(pfComp instanceof PluginElement) {
+                    /*if(pfComp instanceof PluginElement) {
                         pluginDefinitions.add(((PluginElement) pfComp).generateDefinition(document));
                         paramDefinitions.add(((PluginElement) pfComp).generateParamDefinition(document));
                     } else if(pfComp instanceof FusionElement) {
                         fusionDefinitions.add(((FusionElement) pfComp).generateDefinition(document));
+                        paramDefinitions.add(((FusionElement) pfComp).generateParamDefinition(document));
                         Element mmfg = document.createElement("mmfg");
                         String processor = Arrays.stream(getIncomingEdges(comp))
                                 .filter(e -> ((mxCell) e).getSource() instanceof ProcessingFlowComponent)
@@ -411,6 +331,46 @@ public class EditorGraph extends mxGraph {
                         fusion.setAttribute("processor", ((FusionElement) pfComp).getName());
                         sequence.add(mmfg);
                         sequence.add(fusion);
+                    }*/
+                    if(pfComp instanceof IProcessingComponent) {
+                        paramDefinitions.add(((IProcessingComponent) pfComp).generateParamDefinition(document));
+                        if(pfComp instanceof PluginElement) {
+                            pluginDefinitions.add(((PluginElement) pfComp).generateDefinition(document));
+                        } else if(pfComp instanceof FusionElement) {
+                            fusionDefinitions.add(((FusionElement) pfComp).generateDefinition(document));
+                        }
+                        long count = Arrays.stream(getIncomingEdges(comp))
+                                .filter(e -> ((mxCell) e).getSource() instanceof ProcessingFlowComponent)
+                                .map(cell -> (ProcessingFlowComponent) ((mxCell) cell).getSource())
+                                .map(ProcessingFlowComponent::getPFComponent)
+                                .filter(cell -> cell instanceof IProcessingComponent).count();
+                        if(count > 0) {
+                            if(pfComp instanceof PluginElement) {
+                                Element text = document.createElement("text");
+                                String processor = Arrays.stream(getIncomingEdges(comp))
+                                        .filter(e -> ((mxCell) e).getSource() instanceof ProcessingFlowComponent)
+                                        .map(cell -> (ProcessingFlowComponent) ((mxCell) cell).getSource())
+                                        .map(cell -> (IProcessingComponent) cell.getPFComponent())
+                                        .map(IProcessingComponent::getName).collect(Collectors.joining(","));
+                                text.setAttribute("preprocessor", processor);
+                                Element plugin = document.createElement("mmfg");
+                                plugin.setAttribute("processor", ((PluginElement) pfComp).getName());
+                                sequence.add(text);
+                                sequence.add(plugin);
+                            } else if(pfComp instanceof FusionElement) {
+                                Element mmfg = document.createElement("mmfg");
+                                String processor = Arrays.stream(getIncomingEdges(comp))
+                                        .filter(e -> ((mxCell) e).getSource() instanceof ProcessingFlowComponent)
+                                        .map(cell -> (ProcessingFlowComponent) ((mxCell) cell).getSource())
+                                        .map(cell -> (IProcessingComponent) cell.getPFComponent())
+                                        .map(IProcessingComponent::getName).collect(Collectors.joining(","));
+                                mmfg.setAttribute("processor", processor);
+                                Element fusion = document.createElement("fusion");
+                                fusion.setAttribute("processor", ((FusionElement) pfComp).getName());
+                                sequence.add(mmfg);
+                                sequence.add(fusion);
+                            }
+                        }
                     } else if(pfComp instanceof IAssetComponent) {
                         resourceDefinitions.add(((IAssetComponent) pfComp).generateDefinition(document));
                         if(((IAssetComponent) pfComp).isStart()) {
@@ -425,21 +385,24 @@ public class EditorGraph extends mxGraph {
                     }
                 });
 
-        /*if(startVertex != null) {
-            //System.out.println("Traversing");
-            traverse(startVertex, true, visitor);
-        }*/
+        /*
+         * Duplikate entfernen
+         */
+
+        for(int i = sequence.size() - 1; i >= 1; i--) {
+            if(sequence.get(i).isEqualNode(sequence.get(i - 1))) {
+                sequence.remove(i);
+            }
+        }
 
         Element root = document.createElement("process-flow");
         document.appendChild(root);
         root.appendChild(document.createComment("Plugin-Definitionen"));
         for(Element e : pluginDefinitions) {
-            //System.out.println(e);
             root.appendChild(e);
         }
         root.appendChild(document.createComment("Fusion-Definitionen"));
         for(Element e : fusionDefinitions) {
-            //System.out.println(e);
             root.appendChild(e);
         }
         root.appendChild(document.createComment("Resource-Definitionen"));
@@ -478,77 +441,4 @@ public class EditorGraph extends mxGraph {
 
         return optional.orElse(null);
     }
-
-    @Override
-    public Object updateCellSize(Object cell) {
-        return super.updateCellSize(cell);
-    }
-
-    /*if(source instanceof CustomCell && target instanceof CustomCell) {
-            return "Nö";
-        }
-
-        mxAnalysisGraph analysisGraph = new mxAnalysisGraph();
-        analysisGraph.setGraph(view.getGraph());
-
-        mxGraph graph = analysisGraph.getGraph();
-        mxIGraphModel model = graph.getModel();
-        Object[] cells = model.cloneCells(analysisGraph.getChildCells(graph.getDefaultParent(), true, true), true);
-
-        System.out.println("Graph: " + Arrays.toString(cells));
-
-        mxGraphModel modelCopy = new mxGraphModel();
-        mxGraph graphCopy = new mxGraph(modelCopy);
-        Object parentCopy = graphCopy.getDefaultParent();
-        graphCopy.addCells(cells);
-
-        //graphCopy.insertEdge(parentCopy, null, null, source, target);
-
-        mxAnalysisGraph analysisGraphCopy = new mxAnalysisGraph();
-        analysisGraphCopy.setGraph(graphCopy);
-        //analysisGraphCopy.setGenerator(analysisGraph.getGenerator());
-        //analysisGraphCopy.setProperties(analysisGraph.getProperties());
-
-        graph.insertEdge(graph.getDefaultParent(), null, null, source, target);
-
-        System.out.println("Graph: " + Arrays.toString(analysisGraphCopy.getChildCells(graphCopy.getDefaultParent(), true, true)));
-
-        System.out.println(mxGraphStructure.isCyclicDirected(analysisGraphCopy));
-
-
-        mxAnalysisGraph extractChildrenAnalysisGraph = new mxAnalysisGraph();
-        extractChildrenAnalysisGraph.setGraph(this);
-
-        mxGraph currentGraph = extractChildrenAnalysisGraph.getGraph();
-        mxIGraphModel currentModel = currentGraph.getModel();
-        Object[] extractedCells = currentModel.cloneCells(extractChildrenAnalysisGraph.getChildCells(currentGraph.getDefaultParent(), true, true), true);
-
-
-        mxGraphModel futureModel = new mxGraphModel();
-        mxGraph futureGraph = new mxGraph(futureModel);
-        futureGraph.addCells(extractedCells);
-
-        mxCell newEdge = new mxCell();
-        newEdge.setSource((mxICell) source);
-        newEdge.setTarget((mxICell) target);
-
-        futureGraph.addCells(new Object[] {newEdge});
-
-        mxAnalysisGraph futureAnalysisGraph = new mxAnalysisGraph();
-        futureAnalysisGraph.setGraph(futureGraph);
-
-        System.out.println(mxGraphStructure.isCyclicDirected(futureAnalysisGraph));
-
-
-
-        if(mxGraphStructure.isCyclicDirected(futureAnalysisGraph)) {
-            return "Previously added edge induced a cycle!";
-        }
-
-        mxAnalysisGraph analysisGraph = new mxAnalysisGraph();
-        analysisGraph.setGraph(this);
-
-        if(mxGraphStructure.isCyclicDirected(analysisGraph)) {
-            return "Previously added edge induced a cycle!";
-        }*/
 }

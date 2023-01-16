@@ -56,6 +56,8 @@
 		<add as="labelBackgroundColor" value="white"/>
 		<add as="edgeStyle" value="elbowEdgeStyle"/>
 		<add as="strokeColor" value="#000000"/>
+		<add as="endSize" value="11"/>
+		<!--<add as="endFill" value="#000000"/>-->
 		<add as="fontSize" value="12"/>
 		<add as="fontColor" value="black"/>
 		<add as="fontFamily" value="Verdana"/>

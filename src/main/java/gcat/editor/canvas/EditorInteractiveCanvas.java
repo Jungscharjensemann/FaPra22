@@ -8,6 +8,8 @@ import com.mxgraph.view.mxCellState;
 import gcat.editor.canvas.shapes.PentagonShape;
 
 import java.awt.*;
+import java.awt.font.FontRenderContext;
+import java.awt.font.GlyphVector;
 import java.util.Map;
 
 public class EditorInteractiveCanvas extends mxInteractiveCanvas {
@@ -36,6 +38,7 @@ public class EditorInteractiveCanvas extends mxInteractiveCanvas {
             Color border = mxUtils.getColor(style,
                     mxConstants.STYLE_LABEL_BORDERCOLOR);
             Rectangle labelBounds = state.getLabelBounds().getRectangle();
+
             labelBounds.height = 15;
             paintRectangle(labelBounds, bg, border);
 

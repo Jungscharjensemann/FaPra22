@@ -5,6 +5,8 @@ import gcat.editor.graph.cell_component.MultiMediaType;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class AssetElement implements IAssetComponent {
@@ -122,6 +124,6 @@ public class AssetElement implements IAssetComponent {
 
     @Override
     public Set<MultiMediaType> getOutput() {
-        return null;
+        return new HashSet<>(List.of(MultiMediaType.FILE));
     }
 }

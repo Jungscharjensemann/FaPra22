@@ -72,6 +72,9 @@ public class CellEditor extends JPanel {
         JButton addButton = new JButton("Hinzufügen");
         addButton.setSize(new Dimension(70, 20));
 
+        JButton removeButton = new JButton("Entfernen");
+        removeButton.setSize(new Dimension(70, 20));
+
 
         addButton.addActionListener(e -> {
             if(component != null) {
@@ -84,13 +87,26 @@ public class CellEditor extends JPanel {
             }
         });
 
+        removeButton.addActionListener(e -> {
+            if(component != null) {
+                if(component instanceof IProcessingComponent) {
+                    if(!keyField.getText().isEmpty()) {
+                        ((IProcessingComponent) component).removeParameter(keyField.getText());
+                        setParameters(((IProcessingComponent) component).getParameters());
+                    }
+                }
+            }
+        });
+
         addParamPanel.add(keyLabel, "cell 0 0");
         addParamPanel.add(keyField, "cell 1 0, growx");
 
         addParamPanel.add(valueLabel, "cell 0 1");
         addParamPanel.add(valueField, "cell 1 1, growx");
 
-        addParamPanel.add(addButton, "cell 1 2, span, align center");
+        addParamPanel.add(addButton, "span, split 2, cell 0 2, align center");
+        addParamPanel.add(removeButton, "cell 1 2, align center");
+
 
         parameterPanel.add(addParamPanel, BorderLayout.CENTER);
 

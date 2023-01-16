@@ -59,6 +59,13 @@ public class PluginElement implements IProcessingComponent {
     }
 
     @Override
+    public void removeParameter(String key) {
+        if(key != null) {
+            parameters.remove(key);
+        }
+    }
+
+    @Override
     public TreeMap<String, Object> getParameters() {
         return parameters;
     }
@@ -71,6 +78,7 @@ public class PluginElement implements IProcessingComponent {
         return pluginDefinition;
     }
 
+    @Override
     public List<Element> generateParamDefinition(Document document) {
         List<Element> paramDefinitions = new ArrayList<>();
         parameters.forEach((k, v) -> {

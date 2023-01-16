@@ -1,7 +1,6 @@
 package gcat.editor.view.palletes;
 
 import gcat.editor.graph.cell_component.MultiMediaType;
-import gcat.editor.graph.processingflow.ProcessingFlowPlugin;
 import gcat.editor.view.EditorPalette;
 
 import java.util.TreeMap;

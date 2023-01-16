@@ -13,7 +13,7 @@ public class PropertyTableModel extends DefaultTableModel {
 
     private final String[] columnIdentifiers = new String[] {"Eigenschaft", "Wert"};
 
-    private EditorMainFrame editorMainFrame;
+    private final EditorMainFrame editorMainFrame;
 
     public PropertyTableModel(EditorMainFrame reference) {
         editorMainFrame = reference;
@@ -145,12 +145,13 @@ public class PropertyTableModel extends DefaultTableModel {
                         case 3:
                             ((IAssetComponent) component).setStart((Boolean) aValue);
                             ((IAssetComponent) component).setEnd(!((IAssetComponent) component).isStart());
-                            editorMainFrame.getEditorGraph().updateStart();
+                            editorMainFrame.getEditorGraph().updateStart((IAssetComponent) component);
                             fireTableCellUpdated(4, 1);
                             break;
                         case 4:
                             ((IAssetComponent) component).setEnd((Boolean) aValue);
                             ((IAssetComponent) component).setStart(!((IAssetComponent) component).isEnd());
+                            editorMainFrame.getEditorGraph().updateEnd((IAssetComponent) component);
                             fireTableCellUpdated(3, 1);
                             break;
                     }

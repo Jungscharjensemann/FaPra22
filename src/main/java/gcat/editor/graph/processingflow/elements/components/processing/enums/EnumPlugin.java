@@ -11,59 +11,158 @@ import static gcat.editor.graph.cell_component.MultiMediaType.*;
 public enum EnumPlugin {
 
     /**
-     * Audio
+     * Allgemeine GMAF Plugins
      */
 
     AUDIOEXTRACTOR("AudioExtractor",
             "de.swa.gmaf.plugin.audio.AudioExtractor",
-            set(),
+            set(FILE),
             set(MMFG)),
     AUDIOTRANSCRIBER("AudioTranscriber",
             "de.swa.gmaf.plugin.audio.AudioTranscriber",
-            set(),
+            set(FILE),
             set(MMFG)),
     SHAZAMPLUGIN("ShazamPlugin",
             "de.swa.gmaf.plugin.audio.ShazamPlugin",
-            set(),
+            set(FILE),
             set(MMFG)),
-
-    /**
-     * GoogleVision
-     */
-
-    DOMINANTCOLORDETECTION("DominantColorDetection", "", set(), set(MMFG)),
-    FACEDETECTION("FaceDetection", "", set(), set(MMFG)),
-    IMAGETEXTDETECTION("ImageTextDetection", "", set(), set(MMFG)),
+    DOMINANTCOLORDETECTION("DominantColorDetection",
+            "de.swa.gmaf.plugin.googlevision.DominantColorDetection",
+            set(FILE),
+            set(MMFG)),
+    FACEDETECTION("FaceDetection",
+            "de.swa.gmaf.plugin.googlevision.FaceDetection",
+            set(FILE),
+            set(MMFG)),
+    IMAGETEXTDETECTION("ImageTextDetection",
+            "de.swa.gmaf.plugin.googlevision.ImageTextDetection",
+            set(FILE),
+            set(MMFG)),
 
     LABELDETECTION("LabelDetection",
             "de.swa.gmaf.plugin.googlevision.LabelDetection",
-            set(JPG, JPEG, PNG, TIFF, GIF),
+            set(FILE),
             set(MMFG)),
-    LANDMARKDETECTION("LandmarkDetection", "", set(), set(MMFG)),
-    LOGODETECTION("LogoDetection", "", set(), set(MMFG)),
-    MOODDETECTION("MoodDetection", "", set(), set(MMFG)),
-    OBJECTDETECTION("ObjectDetection", "", set(), set(MMFG)),
+    LANDMARKDETECTION("LandmarkDetection",
+            "de.swa.gmaf.plugin.googlevision.LandmarkDetection",
+            set(FILE),
+            set(MMFG)),
+    LOGODETECTION("LogoDetection",
+            "de.swa.gmaf.plugin.googlevision.LogoDetection",
+            set(FILE),
+            set(MMFG)),
+    MOODDETECTION("MoodDetection",
+            "de.swa.gmaf.plugin.googlevision.MoodDetection",
+            set(FILE),
+            set(MMFG)),
+    OBJECTDETECTION("ObjectDetection",
+            "de.swa.gmaf.plugin.googlevision.ObjectDetection",
+            set(FILE),
+            set(MMFG)),
+    WASHINGTONPOSTINDEXER("WashintonPostIndexer",
+            "de.swa.gmaf.plugin.text.WashingtonPostIndexer",
+            set(FILE),
+            set(MMFG)),
+    VIDEOEXTRACTOR("VideoExtractor",
+            "de.swa.gmaf.plugin.video.VideoExtractor",
+            set(FILE),
+            set(MMFG)),
+    EXIFHANDLER("ExifHandler",
+            "de.swa.gmaf.plugin.ExifHandler",
+            set(FILE),
+            set(MMFG)),
+    MPEG7IMPORT("Mpeg7Import",
+            "de.swa.gmaf.plugin.Mpeg7Import",
+            set(FILE),
+            set(MMFG)),
+    VIDEOSHOTDETECTION("VideoShotDetection",
+            "de.swa.gmaf.plugin.VideoShotDetection",
+            set(FILE),
+            set(MMFG)
+    ),
+    VIDEOSPLITTER("VideoSplitter",
+            "de.swa.gmaf.plugin.VideoSplitter",
+            set(FILE),
+            set(MMFG)
+    ),
+    REKOGNITIONBASEPLUGIN_JAVAV2("RekognitionBasePlugin_JavaV2",
+            "de.swa.fuh.plugins.RekonitionBasePlugin_JavaV2",
+            set(FILE),
+            set(MMFG)
+    ),
+    CLARIFAIBASEPLUGIN("ClarifaiBasePlugin",
+            "de.swa.fuh.plugins.ClarifaiBasePlugin",
+            set(FILE),
+            set(MMFG)
+    ),
+    CARAPI("CarApi",
+            "de.swa.fuh.carnet.CarAPI",
+            set(FILE),
+            set(MMFG)
+    ),
+    CLARIFAIOBJECTDETECTION("ClarifaiObjectDetection",
+            "de.swa.fuh.clarifai.ClarifaiObjectDetection",
+            set(FILE),
+            set(MMFG)
+    ),
+    COMPUTERVISION("ComputerVision",
+            "de.swa.fuh.microsoft.ComputerVision",
+            set(FILE),
+            set(MMFG)
+    ),
+    OPENCVOBJECTDETECTOR("OpenCvObjectDetector",
+            "de.swa.fuh.opencv.OpenCVObjectDetector",
+            set(FILE),
+            set(MMFG)
+    ),
+    GENERICXMLIMPORT("GenericXmlImport",
+            "de.swa.fuh.xml.GenericXMLImporter",
+            set(FILE),
+            set(MMFG)
+    ),
+    YOLOOBJECTDETECTION("YoloObjectDetection",
+            "de.swa.fuh.yolo.YoloObjectDetection",
+            set(FILE),
+            set(MMFG)
+    ),
 
     /**
-     * Text
+     * Spezielle Varianten / Vorverarbeitung
      */
 
-    BAGOFWORDSDETECTION("BagOfWordsDetection", "", set(), set()),
-    SENTENCEDETECTION("SentenceDetection", "", set(), set()),
-    TFIDFCALCULATION("TFIDFCalculation", "", set(), set()),
-    WASHINGTONPOSTINDEXER("WashintonPostIndexer", "", set(), set()),
-    DOCXEXTENSIONPLUGIN("DocxExtensionPlugin", "", set(), set()),
-    RSSEXTENSIONPLUGIN("RSSExtensionPlugin", "", set(), set()),
-    TXTEXTENSIONPLUGIN("TXTExtensionPlugin", "", set(), set()),
-    WAPOEXTENSIONPLUGIN("WapoExtensionPlugin", "", set(), set()),
+    DOCXEXTENSIONPLUGIN("DocxExtensionPlugin",
+            "de.swa.gmaf.plugin.text.extension.DOCX_ExtensionPlugin",
+            set(FILE),
+            set(TXT)),
+    RSSEXTENSIONPLUGIN("RSSExtensionPlugin",
+            "de.swa.gmaf.plugin.text.extension.RSS_ExtensionPlugin",
+            set(FILE),
+            set(TXT)),
+    TXTEXTENSIONPLUGIN("TXTExtensionPlugin",
+            "de.swa.gmaf.plugin.text.extension.TXT_ExtensionPlugin",
+            set(FILE),
+            set(TXT)),
+    WAPOEXTENSIONPLUGIN("WapoExtensionPlugin",
+            "de.swa.gmaf.plugin.text.extension.WAPO_ExtensionPlugin",
+            set(FILE),
+            set(TXT)),
 
     /**
-     * Video
+     * Spezielle Varianten / Algorithmik
      */
 
-    VIDEOEXTRACTOR("VideoExtractor", "", set(), set()),
-
-
+    BAGOFWORDSDETECTION("BagOfWordsDetection",
+            "de.swa.gmaf.plugin.text.BagOfWordsDetection",
+            set(TXT),
+            set(MMFG)),
+    SENTENCEDETECTION("SentenceDetection",
+            "de.swa.gmaf.plugin.text.SentenceDetection",
+            set(TXT),
+            set(MMFG)),
+    TFIDFCALCULATION("TFIDFCalculation",
+            "de.swa.gmaf.plugin.text.TFIDFCalculation",
+            set(TXT),
+            set(MMFG)),
     ;
 
     private final String label;

@@ -282,16 +282,15 @@ public class EditorMainFrame extends JFrame {
         ArrayList<EditorPalette> paletteList = new ArrayList<>();
 
         {
-            //paletteList.add(new PluginPalette());
             paletteList.add(new FusionPalette());
             //paletteList.add(new FilterPalette());
             //paletteList.add(new ExtensionsPalette());
-            paletteList.add(new MiscellaneousPalette());
-            //paletteList.add(new GoogleVisionPallete());
-
+            paletteList.add(new AssetPalette());
+            paletteList.add(new AlgorithmicPalette());
             paletteList.add(new AudioPalette());
             paletteList.add(new GoogleVisionPalette());
             paletteList.add(new TextPalette());
+            paletteList.add(new PreProcessingPalette());
             paletteList.add(new VideoPalette());
         }
 
@@ -351,7 +350,7 @@ public class EditorMainFrame extends JFrame {
         undoManager.addListener(mxEvent.UNDO, graphEventListener);
         undoManager.addListener(mxEvent.REDO, graphEventListener);
 
-        editorGraph.addListener(mxEvent.CELL_CONNECTED, new GraphEdgeEventController(this));
+        //editorGraph.getModel().addListener(mxEvent.CELL_CONNECTED, new GraphEdgeEventController(this));
 
         editorGraph.getModel().addListener(mxEvent.CONNECT_CELL, graphEventListener);
 

@@ -4,18 +4,13 @@ import gcat.editor.graph.processingflow.elements.components.processing.enums.Enu
 import gcat.editor.graph.processingflow.elements.components.processing.plugin.PluginElement;
 import gcat.editor.view.EditorPalette;
 
-public class TextPalette extends EditorPalette {
+public class AlgorithmicPalette extends EditorPalette {
 
-    public TextPalette() {
-        setTitle("Text");
+    public AlgorithmicPalette() {
+        setTitle("Algorithmik");
 
         addPluginTemplate(new PluginElement(EnumPlugin.BAGOFWORDSDETECTION));
         addPluginTemplate(new PluginElement(EnumPlugin.SENTENCEDETECTION));
         addPluginTemplate(new PluginElement(EnumPlugin.TFIDFCALCULATION));
-        addPluginTemplate(new PluginElement(EnumPlugin.WASHINGTONPOSTINDEXER));
-        addPluginTemplate(new PluginElement(EnumPlugin.DOCXEXTENSIONPLUGIN));
-        addPluginTemplate(new PluginElement(EnumPlugin.RSSEXTENSIONPLUGIN));
-        addPluginTemplate(new PluginElement(EnumPlugin.TXTEXTENSIONPLUGIN));
-        addPluginTemplate(new PluginElement(EnumPlugin.WAPOEXTENSIONPLUGIN));
     }
 }

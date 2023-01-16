@@ -13,15 +13,11 @@ import java.awt.*;
 
 public class GraphEdgeEventController implements mxEventSource.mxIEventListener {
 
-    private final EditorMainFrame editorMainFrame;
-    private EditorGraph editorGraph;
-    private mxAnalysisGraph analysisGraph;
     private mxIGraphModel graphModel;
 
     public GraphEdgeEventController(EditorMainFrame reference) {
-        this.editorMainFrame = reference;
-        editorGraph = editorMainFrame.getEditorGraph();
-        analysisGraph = new mxAnalysisGraph();
+        EditorGraph editorGraph = reference.getEditorGraph();
+        mxAnalysisGraph analysisGraph = new mxAnalysisGraph();
         analysisGraph.setGraph(editorGraph);
     }
 

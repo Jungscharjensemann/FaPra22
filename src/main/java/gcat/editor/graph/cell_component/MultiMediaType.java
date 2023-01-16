@@ -28,7 +28,8 @@ public enum MultiMediaType {
 
     IMAGE("image"),
     MMFG("mmfg"),
-    TXT("text");
+    TXT("text"),
+    FILE("file");
 
     private final String type;
 

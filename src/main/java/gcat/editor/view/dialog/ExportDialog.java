@@ -36,11 +36,16 @@ public class ExportDialog extends JPanel {
         optionPanel.add(extensionField, "cell 1 1, grow");
 
         JLabel generalLabel = new JLabel("isGeneral: ");
-        optionPanel.add(generalLabel, "cell 0 2");
+        optionPanel.add(generalLabel, "span, split 4, cell 0 2");
 
         JCheckBox generalCheckBox = new JCheckBox();
-        optionPanel.add(generalCheckBox, "cell 1 2");
+        optionPanel.add(generalCheckBox);
 
+        JLabel omitLabel = new JLabel("Omit XML");
+        optionPanel.add(omitLabel);
+
+        JCheckBox omitCheckBox = new JCheckBox();
+        optionPanel.add(omitCheckBox);
 
         JPanel cp = new JPanel();
         cp.setLayout(new BorderLayout());
@@ -51,7 +56,7 @@ public class ExportDialog extends JPanel {
         syntaxTextArea.setCodeFoldingEnabled(true);
         syntaxTextArea.setEditable(false);
 
-        syntaxTextArea.setText(XmlUtil.getXML(document, new StringWriter()));
+        syntaxTextArea.setText(XmlUtil.getXML(document, new StringWriter(), false));
 
         RTextScrollPane scrollPane = new RTextScrollPane(syntaxTextArea);
         cp.add(scrollPane);
@@ -60,7 +65,7 @@ public class ExportDialog extends JPanel {
             @Override
             public void insertUpdate(DocumentEvent e) {
                 document.getDocumentElement().setAttribute("name", nameField.getText());
-                syntaxTextArea.setText(XmlUtil.getXML(document, new StringWriter()));
+                syntaxTextArea.setText(XmlUtil.getXML(document, new StringWriter(), omitCheckBox.isSelected()));
             }
 
             @Override
@@ -77,7 +82,7 @@ public class ExportDialog extends JPanel {
             @Override
             public void insertUpdate(DocumentEvent e) {
                 document.getDocumentElement().setAttribute("extension", extensionField.getText());
-                syntaxTextArea.setText(XmlUtil.getXML(document, new StringWriter()));
+                syntaxTextArea.setText(XmlUtil.getXML(document, new StringWriter(), omitCheckBox.isSelected()));
             }
 
             @Override
@@ -93,7 +98,11 @@ public class ExportDialog extends JPanel {
 
         generalCheckBox.addItemListener(e -> {
             document.getDocumentElement().setAttribute("isGeneral", String.valueOf(generalCheckBox.isSelected()));
-            syntaxTextArea.setText(XmlUtil.getXML(document, new StringWriter()));
+            syntaxTextArea.setText(XmlUtil.getXML(document, new StringWriter(), omitCheckBox.isSelected()));
+        });
+
+        omitCheckBox.addItemListener(e -> {
+            syntaxTextArea.setText(XmlUtil.getXML(document, new StringWriter(), omitCheckBox.isSelected()));
         });
 
         add(cp, BorderLayout.CENTER);

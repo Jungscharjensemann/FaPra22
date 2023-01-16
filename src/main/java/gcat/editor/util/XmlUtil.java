@@ -32,10 +32,10 @@ public class XmlUtil {
         }
     }
 
-    public static String getXML(Document document, Writer writer) {
+    public static String getXML(Document document, Writer writer, boolean omit) {
         try {
             Transformer transformer = TransformerFactory.newInstance().newTransformer();
-            transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+            transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, omit ? "yes" : "false");
             transformer.setOutputProperty(OutputKeys.INDENT, "yes");
             transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "3");
 
