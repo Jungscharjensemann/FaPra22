@@ -557,6 +557,7 @@ public class EditorActions
 			mxPngEncodeParam param = mxPngEncodeParam
 					.getDefaultEncodeParam(image);
 			param.setCompressedText(new String[] { "mxGraphModel", xml });
+			System.out.println(xml);
 
 			// Saves as a PNG file
 			FileOutputStream outputStream = new FileOutputStream(new File(

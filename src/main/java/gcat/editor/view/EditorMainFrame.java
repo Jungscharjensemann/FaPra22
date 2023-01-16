@@ -126,7 +126,11 @@ public class EditorMainFrame extends JFrame {
         JMenuItem xmlExportItem = new JMenuItem("XML");
         xmlExportItem.addActionListener(new ExportXMLController(this));
 
+        JMenuItem pngExportItem = new JMenuItem("PNG");
+        pngExportItem.addActionListener(new ExportPNGController(this));
+
         exportMenuItem.add(xmlExportItem);
+        exportMenuItem.add(pngExportItem);
         exportMenuItem.add(new JMenuItem("GMAF"));
 
         /*
