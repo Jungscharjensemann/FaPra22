@@ -9,11 +9,12 @@ import org.w3c.dom.Document;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 import java.awt.*;
 import java.io.StringWriter;
 
+/**
+ * Dialog für das Exportieren.
+ */
 public class ExportDialog extends JPanel {
 
     public ExportDialog(Document document) {
@@ -61,39 +62,14 @@ public class ExportDialog extends JPanel {
         RTextScrollPane scrollPane = new RTextScrollPane(syntaxTextArea);
         cp.add(scrollPane);
 
-        nameField.getDocument().addDocumentListener(new DocumentListener() {
-            @Override
-            public void insertUpdate(DocumentEvent e) {
-                document.getDocumentElement().setAttribute("name", nameField.getText());
-                syntaxTextArea.setText(XmlUtil.getXML(document, new StringWriter(), omitCheckBox.isSelected()));
-            }
-
-            @Override
-            public void removeUpdate(DocumentEvent e) {
-
-            }
-
-            @Override
-            public void changedUpdate(DocumentEvent e) {
-            }
+        nameField.getDocument().addDocumentListener((DocumentAdapter) () -> {
+            document.getDocumentElement().setAttribute("name", nameField.getText());
+            syntaxTextArea.setText(XmlUtil.getXML(document, new StringWriter(), omitCheckBox.isSelected()));
         });
 
-        extensionField.getDocument().addDocumentListener(new DocumentListener() {
-            @Override
-            public void insertUpdate(DocumentEvent e) {
-                document.getDocumentElement().setAttribute("extension", extensionField.getText());
-                syntaxTextArea.setText(XmlUtil.getXML(document, new StringWriter(), omitCheckBox.isSelected()));
-            }
-
-            @Override
-            public void removeUpdate(DocumentEvent e) {
-
-            }
-
-            @Override
-            public void changedUpdate(DocumentEvent e) {
-
-            }
+        extensionField.getDocument().addDocumentListener((DocumentAdapter) () -> {
+            document.getDocumentElement().setAttribute("extension", extensionField.getText());
+            syntaxTextArea.setText(XmlUtil.getXML(document, new StringWriter(), omitCheckBox.isSelected()));
         });
 
         generalCheckBox.addItemListener(e -> {
@@ -101,9 +77,7 @@ public class ExportDialog extends JPanel {
             syntaxTextArea.setText(XmlUtil.getXML(document, new StringWriter(), omitCheckBox.isSelected()));
         });
 
-        omitCheckBox.addItemListener(e -> {
-            syntaxTextArea.setText(XmlUtil.getXML(document, new StringWriter(), omitCheckBox.isSelected()));
-        });
+        omitCheckBox.addItemListener(e -> syntaxTextArea.setText(XmlUtil.getXML(document, new StringWriter(), omitCheckBox.isSelected())));
 
         add(cp, BorderLayout.CENTER);
     }

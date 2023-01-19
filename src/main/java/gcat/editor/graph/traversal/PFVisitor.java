@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@SuppressWarnings("unused")
 public class PFVisitor implements IPFVisitor {
 
     List<Element> pluginDefinitions;

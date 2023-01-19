@@ -48,6 +48,11 @@ public class EditorGraphComponent extends mxGraphComponent {
     }
 
     @Override
+    public Dimension getPreferredSize() {
+        return super.getMinimumSize();
+    }
+
+    @Override
     public Object[] importCells(Object[] cells, double dx, double dy, Object target, Point location) {
         if (target == null && cells.length == 1 && location != null) {
             target = getCellAt(location.x, location.y);

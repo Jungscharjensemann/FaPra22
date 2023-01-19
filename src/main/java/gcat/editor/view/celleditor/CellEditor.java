@@ -14,18 +14,36 @@ import javax.swing.border.TitledBorder;
 import java.awt.*;
 import java.util.TreeMap;
 
+/**
+ * Editor für das Modifizieren von
+ * Eigenschaften einer Komponente.
+ */
 public class CellEditor extends JPanel {
 
+    /**
+     * Model für Parameter.
+     */
     private final ParameterTableModel parameterTableModel;
 
+    /**
+     * Model für Eigenschaften.
+     */
     private final PropertyTableModel propertyTableModel;
 
+    /**
+     * Panel für Parameter.
+     */
     private final JPanel parameterPanel;
 
+    /**
+     * Aktuelle Komponente im PF.
+     */
     private IPFComponent component;
 
     public CellEditor(EditorMainFrame reference) {
         setLayout(new MigLayout("", "[grow]", "[]"));
+
+        // Label.
         JLabel lblNewLabel = new JLabel("Cell Editor");
         lblNewLabel.setFont(new Font("Tahoma", Font.PLAIN, 16));
         lblNewLabel.setHorizontalAlignment(SwingConstants.CENTER);
@@ -34,16 +52,16 @@ public class CellEditor extends JPanel {
         JScrollPane propertyScrollPane = new JScrollPane();
         propertyScrollPane.setBorder(new TitledBorder("Eigenschaften"));
 
+        // Table für die Eigenschaften einer Komponente.
         CellTable propertyTable = new CellTable();
         propertyTable.getTableHeader().setDefaultRenderer(new HeaderRenderer(propertyTable.getTableHeader()));
         propertyTableModel = new PropertyTableModel(reference);
         propertyTable.setModel(propertyTableModel);
 
         propertyScrollPane.setViewportView(propertyTable);
-
         add(propertyScrollPane, "cell 0 2, growx");
 
-
+        // Eigenes Panel für Parameter.
         parameterPanel = new JPanel();
         parameterPanel.setVisible(false);
         parameterPanel.setBorder(new TitledBorder("Parameter"));
@@ -53,13 +71,13 @@ public class CellEditor extends JPanel {
         CellTable paramTable = new CellTable();
         paramTable.getTableHeader().setDefaultRenderer(new HeaderRenderer(paramTable.getTableHeader()));
 
+        // Model für die Parameter.
         parameterTableModel = new ParameterTableModel();
         paramTable.setModel(parameterTableModel);
 
         paramScrollPane.setViewportView(paramTable);
 
         parameterPanel.add(paramScrollPane, BorderLayout.NORTH);
-
         JPanel addParamPanel = new JPanel();
         addParamPanel.setLayout(new MigLayout("", "[left][grow]"));
 
@@ -74,7 +92,6 @@ public class CellEditor extends JPanel {
 
         JButton removeButton = new JButton("Entfernen");
         removeButton.setSize(new Dimension(70, 20));
-
 
         addButton.addActionListener(e -> {
             if(component != null) {
@@ -107,17 +124,24 @@ public class CellEditor extends JPanel {
         addParamPanel.add(addButton, "span, split 2, cell 0 2, align center");
         addParamPanel.add(removeButton, "cell 1 2, align center");
 
-
         parameterPanel.add(addParamPanel, BorderLayout.CENTER);
 
         add(parameterPanel, "cell 0 3, growx");
     }
 
+    /**
+     * Setzt Parameter im Model.
+     * @param parameters Parameter.
+     */
     public void setParameters(TreeMap<String, Object> parameters) {
         parameterTableModel.setParameters(parameters);
         revalidate();
     }
 
+    /**
+     * Setzt die aktuelle Komponente zum Editieren.
+     * @param component Aktuelle Komponente im PF.
+     */
     public void setCurrentIPFComponent(IPFComponent component) {
         if(component != null) {
             this.component = component;
@@ -132,6 +156,7 @@ public class CellEditor extends JPanel {
         }
     }
 
+    @SuppressWarnings("unused")
     public IPFComponent getCurrentIPFComponent() {
         return component;
     }
