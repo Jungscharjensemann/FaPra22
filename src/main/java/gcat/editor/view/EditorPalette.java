@@ -146,6 +146,15 @@ public class EditorPalette extends JXTaskPane {
         }
     }
 
+    /**
+     * Methode zum Hinzufügen einer Schablone, die
+     * später ausgewählt und in den Graphen gezogen
+     * werden kann.
+     * @param name Name der Schablone.
+     * @param icon Icon/Bild der Schablone.
+     * @param cell Knoten des Processing Flows, der
+     *             durch die Schablone dargestellt wird.
+     */
     public void addTemplate(final String name, ImageIcon icon, mxCell cell) {
         mxRectangle bounds = (mxGeometry) cell.getGeometry().clone();
         final mxGraphTransferable t = new mxGraphTransferable(new Object[] { cell }, bounds);
@@ -170,6 +179,7 @@ public class EditorPalette extends JXTaskPane {
         entry.setToolTipText(name);
         entry.setText(name);
 
+        // Aktuelle Auswahl setzen.
         entry.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {

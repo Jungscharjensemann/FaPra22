@@ -88,6 +88,11 @@
             <version>1.4.20</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.j2html</groupId>
+            <artifactId>j2html</artifactId>
+            <version>1.6.0</version>
+        </dependency>
 
     </dependencies>
 

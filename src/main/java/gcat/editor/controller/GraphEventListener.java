@@ -23,6 +23,7 @@ public class GraphEventListener implements mxEventSource.mxIEventListener {
         switch(evt.getName()) {
             case mxEvent.CHANGE:
                 editorMainFrame.getEditorGraphComponent().validateGraph();
+                editorMainFrame.getCellTree().update();
                 System.out.println("Change occured!");
                 break;
             case mxEvent.UNDO:

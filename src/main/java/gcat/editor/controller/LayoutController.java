@@ -12,6 +12,10 @@ import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+/**
+ * Controller zum Layouten
+ * des Graphen.
+ */
 public class LayoutController implements ActionListener {
 
     private final EditorMainFrame reference;

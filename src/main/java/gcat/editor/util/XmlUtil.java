@@ -46,8 +46,6 @@ public class XmlUtil {
             throw new RuntimeException(ex);
         }
 
-
-
         return writer.toString();
     }
 }

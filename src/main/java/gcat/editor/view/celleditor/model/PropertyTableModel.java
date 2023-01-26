@@ -164,6 +164,9 @@ public class PropertyTableModel extends DefaultTableModel {
         if(component != null) {
             this.component = component;
             fireTableDataChanged();
+        } else {
+            setRowCount(0);
+            fireTableDataChanged();
         }
     }
 }

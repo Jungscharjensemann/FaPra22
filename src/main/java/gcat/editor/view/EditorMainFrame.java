@@ -4,17 +4,16 @@ import com.mxgraph.shape.mxStencil;
 import com.mxgraph.shape.mxStencilRegistry;
 import com.mxgraph.swing.handler.mxRubberband;
 import com.mxgraph.swing.mxGraphOutline;
-import com.mxgraph.util.mxEvent;
-import com.mxgraph.util.mxUndoManager;
-import com.mxgraph.util.mxUtils;
-import com.mxgraph.util.mxXmlUtils;
+import com.mxgraph.util.*;
 import gcat.editor.controller.*;
 import gcat.editor.controller.keyboard.EditorKeyBoardHandler;
 import gcat.editor.graph.EditorGraph;
 import gcat.editor.graph.EditorGraphComponent;
 import gcat.editor.view.celleditor.CellEditor;
 import gcat.editor.view.console.EditorConsole;
+import gcat.editor.view.console.model.EditorConsoleModel;
 import gcat.editor.view.palletes.*;
+import gcat.editor.view.tree.CellTree;
 import net.miginfocom.swing.MigLayout;
 import org.jdesktop.swingx.JXMultiSplitPane;
 import org.jdesktop.swingx.MultiSplitLayout;
@@ -26,6 +25,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 import javax.swing.*;
+import javax.swing.border.TitledBorder;
 import java.awt.*;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -63,10 +63,9 @@ public class EditorMainFrame extends JFrame {
      */
     private GraphEventListener graphEventListener;
 
-    /**
-     * Konsole für den Editor.
-     */
-    private EditorConsole editorConsole;
+    private EditorConsoleModel editorConsoleModel;
+
+    private CellTree cellTree;
 
     public EditorMainFrame() {
         initFrame();
@@ -103,6 +102,7 @@ public class EditorMainFrame extends JFrame {
      */
     private void configureFrame() {
         try {
+            // Look and Feel.
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
             ImageIcon icon = new ImageIcon(Objects.requireNonNull(getClass().getClassLoader().getResource("images/gcat.png")));
             setIconImage(icon.getImage());
@@ -234,7 +234,7 @@ public class EditorMainFrame extends JFrame {
         compactItem.addActionListener(layoutController);
         layoutMenuItem.add(compactItem);
 
-
+        // MenuItems.
         fileMenu.add(loadMenuItem);
         fileMenu.add(saveMenuItem);
         fileMenu.addSeparator();
@@ -242,11 +242,32 @@ public class EditorMainFrame extends JFrame {
         fileMenu.addSeparator();
         fileMenu.add(layoutMenuItem);
 
+        /*JMenu languageMenu = new JMenu("Sprache");
+
+        JRadioButtonMenuItem germanRadioButtonMenuItem = new JRadioButtonMenuItem("Deutsch");
+        JRadioButtonMenuItem englishRadioButtonMenuItem = new JRadioButtonMenuItem("Englisch");
+
+        germanRadioButtonMenuItem.setActionCommand("german");
+        germanRadioButtonMenuItem.addActionListener(new ChangeLanguageController());
+
+        englishRadioButtonMenuItem.setActionCommand("english");
+        englishRadioButtonMenuItem.addActionListener(new ChangeLanguageController());
+
+        ButtonGroup languageGroup = new ButtonGroup();
+
+        languageGroup.add(germanRadioButtonMenuItem);
+        languageGroup.add(englishRadioButtonMenuItem);
+
+        languageMenu.add(germanRadioButtonMenuItem);
+        languageMenu.add(englishRadioButtonMenuItem);
+
+        menuBar.add(languageMenu);*/
+
         setJMenuBar(menuBar);
     }
 
     /**
-     * Komponente initialisieren.
+     * Komponenten initialisieren.
      */
     @SuppressWarnings("unused")
     private void initComponents() {
@@ -352,9 +373,13 @@ public class EditorMainFrame extends JFrame {
         mainPanel.add(outerSplitPane, BorderLayout.CENTER);
     }
 
+    /**
+     * Komponenten initialisieren.
+     */
     private void initComponents2(){
         editorGraph = new EditorGraph();
         editorGraphComponent = new EditorGraphComponent(editorGraph);
+        editorGraphComponent.setBorder(new TitledBorder("Graph"));
 
         //Main Panel
         JPanel mainPanel = new JPanel();
@@ -400,8 +425,17 @@ public class EditorMainFrame extends JFrame {
                         center.setWeight(0.8);
 
                         // Rechts.
-                        Leaf right = new Leaf("right");
+                        Split right = new Split();
+                        right.setRowLayout(false);
                         right.setWeight(0);
+
+                        Leaf right_top = new Leaf("right.top");
+                        right_top.setWeight(0.5);
+
+                        Leaf right_bottom = new Leaf("right.bottom");
+                        right_bottom.setWeight(0.5);
+
+                        right.setChildren(right_top, new Divider(), right_bottom);
 
                         // (Horizontal: links, Trenner, mitte, Trenner, rechts).
                         mainRow.setChildren(left, new Divider(), center, new Divider(), right);
@@ -423,6 +457,7 @@ public class EditorMainFrame extends JFrame {
                 JPanel leftTopPane = new JPanel();
                 {
                     leftTopPane.setLayout(new BorderLayout());
+                    leftTopPane.setBorder(new TitledBorder("Palette"));
 
                     // Label.
                     JLabel paletteLabel = new JLabel("Palette");
@@ -446,6 +481,7 @@ public class EditorMainFrame extends JFrame {
                             paletteList.add(new TextPalette());
                             paletteList.add(new PreProcessingPalette());
                             paletteList.add(new VideoPalette());
+                            paletteList.add(new Miscellaneous());
 
                             // Alphabetisches Sortieren der Paletten nach ihren Titeln.
                             paletteList.sort((o1, o2) -> o1.getTitle().compareToIgnoreCase(o2.getTitle()));
@@ -470,26 +506,37 @@ public class EditorMainFrame extends JFrame {
                         leftScrollPane.setBorder(null);
                     }
 
-                    leftTopPane.add(paletteLabel, BorderLayout.NORTH);
+                    //leftTopPane.add(paletteLabel, BorderLayout.NORTH);
                     leftTopPane.add(leftScrollPane, BorderLayout.CENTER);
                 }
 
                 // Graph OutLine für den Graphen und seine Komponente.
+                JPanel outlinePanel = new JPanel();
+                outlinePanel.setBorder(new TitledBorder("Umriss"));
+                outlinePanel.setLayout(new BorderLayout());
+
                 mxGraphOutline leftBottomGraphOutline = new mxGraphOutline(editorGraphComponent);
+                leftBottomGraphOutline.setToolTipText("Umriss des Graphen");
                 leftBottomGraphOutline.setPreferredSize(new Dimension(180, 180));
                 leftBottomGraphOutline.setFitPage(true);
+                outlinePanel.add(leftBottomGraphOutline, BorderLayout.CENTER);
 
                 // CellEditor.
                 cellEditor = new CellEditor(this);
 
                 // Konsole.
-                editorConsole = new EditorConsole();
+                editorConsoleModel = new EditorConsoleModel();
+                EditorConsole editorConsole = new EditorConsole(editorConsoleModel);
+
+                // CellTree (Struktur).
+                cellTree = new CellTree(this);
 
                 multiSplitPane.add(editorConsole, "bottom");
                 multiSplitPane.add(leftTopPane, "left.top");
-                multiSplitPane.add(leftBottomGraphOutline, "left.bottom");
+                multiSplitPane.add(outlinePanel, "left.bottom");
                 multiSplitPane.add(editorGraphComponent, "center");
-                multiSplitPane.add(cellEditor, "right");
+                multiSplitPane.add(cellTree, "right.top");
+                multiSplitPane.add(cellEditor, "right.bottom");
 
                 multiSplitPane.setContinuousLayout(true);
                 multiSplitPane.getMultiSplitLayout().layoutByWeight(editorGraphComponent);
@@ -522,12 +569,11 @@ public class EditorMainFrame extends JFrame {
         undoManager.addListener(mxEvent.UNDO, graphEventListener);
         undoManager.addListener(mxEvent.REDO, graphEventListener);
 
-        // Unbenutzt?
+        // Unbenutzt, nicht notwendig.
         editorGraph.getModel().addListener(mxEvent.CONNECT_CELL, graphEventListener);
 
         // Controller für das Klicken auf Knoten im Graphen.
         editorGraphComponent.getGraphControl().addMouseListener(new GraphVertexController(this));
-        editorGraph.getSelectionModel().addListener(mxEvent.MARK, graphEventListener);
 
         initModelListeners();
         initViewListeners();
@@ -564,7 +610,11 @@ public class EditorMainFrame extends JFrame {
         return cellEditor;
     }
 
-    public EditorConsole getEditorConsole() {
-        return editorConsole;
+    public EditorConsoleModel getEditorConsoleModel() {
+        return editorConsoleModel;
+    }
+
+    public CellTree getCellTree() {
+        return cellTree;
     }
 }

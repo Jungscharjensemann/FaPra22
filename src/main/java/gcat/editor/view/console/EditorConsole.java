@@ -1,5 +1,7 @@
 package gcat.editor.view.console;
 
+import gcat.editor.view.console.model.EditorConsoleModel;
+import gcat.editor.view.console.model.ITextInsertListener;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.fife.ui.rtextarea.RTextScrollPane;
@@ -15,13 +17,17 @@ import java.util.Objects;
 /**
  * Konsole für den Editor.
  */
-public class EditorConsole extends JPanel {
+public class EditorConsole extends JPanel implements ITextInsertListener {
 
     private final RSyntaxTextArea rSyntaxTextArea;
 
-    public EditorConsole() {
+    public EditorConsole(EditorConsoleModel model) {
         setLayout(new BorderLayout());
         setBorder(new TitledBorder("Konsole"));
+
+        if(model != null) {
+            model.addListener(this);
+        }
 
         rSyntaxTextArea = new RSyntaxTextArea();
         rSyntaxTextArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JAVA);
@@ -38,7 +44,11 @@ public class EditorConsole extends JPanel {
         ImageIcon trashIcon = new ImageIcon(Objects.requireNonNull(url));
         JButton clearButton = new JButton(trashIcon);
         clearButton.setToolTipText("Löschen");
-        clearButton.addActionListener(e -> clear());
+        clearButton.addActionListener(e -> {
+            if(model != null) {
+                model.clear();
+            }
+        });
 
         toolBar.add(clearButton);
 
@@ -50,7 +60,8 @@ public class EditorConsole extends JPanel {
      * Einfügen von Text in die Konsole.
      * @param text Der einufügende Text
      */
-    public void insert(String text) {
+    @Override
+    public void onInsert(String text) {
         if(rSyntaxTextArea != null) {
             Document doc = rSyntaxTextArea.getDocument();
             try {
@@ -64,7 +75,8 @@ public class EditorConsole extends JPanel {
     /**
      * Löschen des Textes in der Konsole.
      */
-    public void clear() {
+    @Override
+    public void onClear() {
         if(rSyntaxTextArea != null) {
             rSyntaxTextArea.setText("");
         }

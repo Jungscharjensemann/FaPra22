@@ -6,6 +6,7 @@ import gcat.editor.view.EditorMainFrame;
 import gcat.editor.view.celleditor.model.ParameterTableModel;
 import gcat.editor.view.celleditor.model.PropertyTableModel;
 import gcat.editor.view.celleditor.renderer.HeaderRenderer;
+import gcat.editor.view.celleditor.table.CellPropertyTable;
 import gcat.editor.view.celleditor.table.CellTable;
 import net.miginfocom.swing.MigLayout;
 
@@ -42,18 +43,13 @@ public class CellEditor extends JPanel {
 
     public CellEditor(EditorMainFrame reference) {
         setLayout(new MigLayout("", "[grow]", "[]"));
-
-        // Label.
-        JLabel lblNewLabel = new JLabel("Cell Editor");
-        lblNewLabel.setFont(new Font("Tahoma", Font.PLAIN, 16));
-        lblNewLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        add(lblNewLabel, "cell 0 1, growx");
+        setBorder(new TitledBorder("Cell Editor"));
 
         JScrollPane propertyScrollPane = new JScrollPane();
         propertyScrollPane.setBorder(new TitledBorder("Eigenschaften"));
 
         // Table für die Eigenschaften einer Komponente.
-        CellTable propertyTable = new CellTable();
+        CellPropertyTable propertyTable = new CellPropertyTable();
         propertyTable.getTableHeader().setDefaultRenderer(new HeaderRenderer(propertyTable.getTableHeader()));
         propertyTableModel = new PropertyTableModel(reference);
         propertyTable.setModel(propertyTableModel);
@@ -67,25 +63,27 @@ public class CellEditor extends JPanel {
         parameterPanel.setBorder(new TitledBorder("Parameter"));
         parameterPanel.setLayout(new BorderLayout());
 
-        JScrollPane paramScrollPane = new JScrollPane();
         CellTable paramTable = new CellTable();
+        JScrollPane paramScrollPane = new JScrollPane(paramTable);
         paramTable.getTableHeader().setDefaultRenderer(new HeaderRenderer(paramTable.getTableHeader()));
 
         // Model für die Parameter.
         parameterTableModel = new ParameterTableModel();
         paramTable.setModel(parameterTableModel);
 
-        paramScrollPane.setViewportView(paramTable);
-
         parameterPanel.add(paramScrollPane, BorderLayout.NORTH);
         JPanel addParamPanel = new JPanel();
         addParamPanel.setLayout(new MigLayout("", "[left][grow]"));
+
+        // Labels.
 
         JLabel keyLabel = new JLabel("Parameter:");
         JLabel valueLabel = new JLabel("Wert:");
 
         JTextField keyField = new JTextField();
         JTextField valueField = new JTextField();
+
+        // Buttons.
 
         JButton addButton = new JButton("Hinzufügen");
         addButton.setSize(new Dimension(70, 20));
@@ -146,6 +144,7 @@ public class CellEditor extends JPanel {
         if(component != null) {
             this.component = component;
             propertyTableModel.setCurentIPFComponent(component);
+            // Notwendig.
             revalidate();
             if(component instanceof IProcessingComponent) {
                 parameterPanel.setVisible(true);
@@ -153,6 +152,10 @@ public class CellEditor extends JPanel {
             } else {
                 parameterPanel.setVisible(false);
             }
+        } else {
+            propertyTableModel.setCurentIPFComponent(null);
+            parameterTableModel.setParameters(null);
+            parameterPanel.setVisible(false);
         }
     }
 

@@ -6,6 +6,11 @@ import de.swa.gmaf.ui.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+/**
+ * Controller zum Exportieren eines
+ * Processing Flows in eine laufende
+ * GMAF-Instanz. (Future Work)
+ */
 public class ExportGMAFController implements ActionListener {
 
     @Override

@@ -4,33 +4,32 @@ import com.google.common.collect.Sets;
 import com.mxgraph.analysis.mxAnalysisGraph;
 import com.mxgraph.analysis.mxGraphStructure;
 import com.mxgraph.model.mxCell;
-import com.mxgraph.model.mxGeometry;
-import com.mxgraph.util.mxPoint;
-import com.mxgraph.view.mxCellState;
 import com.mxgraph.view.mxGraph;
-import gcat.editor.graph.processingflow.components.media.MultiMediaType;
 import gcat.editor.graph.processingflow.components.asset.AssetElement;
 import gcat.editor.graph.processingflow.components.asset.IAssetComponent;
+import gcat.editor.graph.processingflow.components.media.MultiMediaType;
 import gcat.editor.graph.processingflow.components.processing.ProcessingFlowComponent;
 import gcat.editor.graph.processingflow.components.processing.fusion.FusionElement;
 import gcat.editor.graph.processingflow.components.processing.interfaces.IPFComponent;
 import gcat.editor.graph.processingflow.components.processing.interfaces.IProcessingComponent;
 import gcat.editor.graph.processingflow.components.processing.plugin.PluginElement;
+import j2html.tags.specialized.HtmlTag;
+import j2html.tags.specialized.TableTag;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import java.text.NumberFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static j2html.TagCreator.*;
+
 public class EditorGraph extends mxGraph {
 
-    public static final NumberFormat numberFormat = NumberFormat.getInstance();
-
     public EditorGraph() {
+        // Eigenschaften des Graphen setzen.
         setAllowLoops(true);
         setMultigraph(false);
         setAllowDanglingEdges(false);
@@ -42,113 +41,135 @@ public class EditorGraph extends mxGraph {
     }
 
     /**
-     * Prints out some useful information about the cell in the tooltip.
+     * Tooltip für eine Zelle.
      */
     @Override
-    public String getToolTipForCell(Object cell)
-    {
-        String tip = "<html>";
-        mxGeometry geo = getModel().getGeometry(cell);
-        mxCellState state = getView().getState(cell);
+    public String getToolTipForCell(Object cell) {
+        HtmlTag html = new HtmlTag();
+        if(cell instanceof ProcessingFlowComponent) {
+            ProcessingFlowComponent pfComponent = (ProcessingFlowComponent) cell;
+            IPFComponent component = pfComponent.getPFComponent();
 
-        if (getModel().isEdge(cell))
-        {
-            tip += "points={";
-
-            if (geo != null)
-            {
-                List<mxPoint> points = geo.getPoints();
-
-                if (points != null)
-                {
-
-                    for (mxPoint point : points) {
-                        tip += "[x=" + numberFormat.format(point.getX())
-                                + ",y=" + numberFormat.format(point.getY())
-                                + "],";
-                    }
-
-                    tip = tip.substring(0, tip.length() - 1);
+            TableTag propertyTable = new TableTag();
+            TableTag parameterTable = new TableTag();
+            if(component instanceof IProcessingComponent) {
+                propertyTable = table(
+                        thead(
+                                tr(
+                                        th("Parameter"),
+                                        th("Wert")
+                                )
+                        ),
+                        tbody(
+                                tr(
+                                        td("name"),
+                                        td(((IProcessingComponent) component).getName())
+                                ),
+                                tr(
+                                        td("classPath"),
+                                        td(((IProcessingComponent) component).getClassPath())
+                                )
+                        )
+                ).attr("border", "1");
+                Set<Map.Entry<String, Object>> entry = ((IProcessingComponent) component).getParameters().entrySet();
+                if(!entry.isEmpty()) {
+                    parameterTable = table(
+                            thead(
+                                    tr(
+                                            th("Parameter"),
+                                            th("Wert")
+                                    )
+                            ),
+                            tbody(
+                                    each(entry, next ->
+                                            tr(
+                                                    td(next.getKey()),
+                                                    td(next.getValue().toString())
+                                            ))
+                            )
+                    ).attr("border", "1");
                 }
+            } else if(component instanceof IAssetComponent) {
+                propertyTable = table(
+                        thead(
+                                tr(
+                                        th("Eigenschaften"),
+                                        th("Wert")
+                                )
+                        ),
+                        tbody(
+                                tr(
+                                        td("name"),
+                                        td(((IAssetComponent) component).getName())
+                                ),
+                                tr(
+                                        td("type"),
+                                        td(((IAssetComponent) component).getType())
+                                ),
+                                tr(
+                                        td("location"),
+                                        td(((IAssetComponent) component).getLocation())
+                                ),
+                                tr(
+                                        td("isStart"),
+                                        td(((IAssetComponent) component).isStart() ? "wahr" : "falsch")
+                                ),
+                                tr(
+                                        td("isEnd"),
+                                        td(((IAssetComponent) component).isEnd() ? "wahr" : "falsch")
+                                )
+                        )
+                ).attr("border", "1");
             }
-
-            tip += "}<br>";
-            tip += "absPoints={";
-
-            if (state != null)
-            {
-
-                for (int i = 0; i < state.getAbsolutePointCount(); i++)
-                {
-                    mxPoint point = state.getAbsolutePoint(i);
-                    tip += "[x=" + numberFormat.format(point.getX())
-                            + ",y=" + numberFormat.format(point.getY())
-                            + "],";
-                }
-
-                tip = tip.substring(0, tip.length() - 1);
-            }
-
-            tip += "}";
+            html = html(
+                    p(b(u(component.getLabel()))).attr("align", "center"),
+                    br(),
+                    propertyTable,
+                    br(),
+                    parameterTable
+            );
         }
-        else
-        {
-            tip += "geo=[";
-
-            if (geo != null)
-            {
-                tip += "x=" + numberFormat.format(geo.getX()) + ",y="
-                        + numberFormat.format(geo.getY()) + ",width="
-                        + numberFormat.format(geo.getWidth()) + ",height="
-                        + numberFormat.format(geo.getHeight());
-            }
-
-            tip += "]<br>";
-            tip += "state=[";
-
-            if (state != null)
-            {
-                tip += "x=" + numberFormat.format(state.getX()) + ",y="
-                        + numberFormat.format(state.getY()) + ",width="
-                        + numberFormat.format(state.getWidth())
-                        + ",height="
-                        + numberFormat.format(state.getHeight());
-            }
-
-            tip += "]";
-        }
-
-        mxPoint trans = getView().getTranslate();
-
-        tip += "<br>scale=" + numberFormat.format(getView().getScale())
-                + ", translate=[x=" + numberFormat.format(trans.getX())
-                + ",y=" + numberFormat.format(trans.getY()) + "]";
-        tip += "</html>";
-
-        return tip;
+        return html.render();
     }
 
+    /**
+     * Methode zum Validieren einer Verbindung zwischen Start und Zielknoten, sobald eine
+     * neue Verbindung hinzugefügt wurde.
+     * @param edge Die zu validierende Kante in Form einer Zelle.
+     * @param source Startknoten.
+     * @param target Zielknoten.
+     * @return Fehlermeldung.
+     */
     @Override
     public String validateEdge(Object edge, Object source, Object target) {
         System.out.printf("Validating %s with source %s and target %s%n", edge, source, target);
 
+        // Analysis Graph zum Analysieren des Graphen.
         mxAnalysisGraph analysisGraph = new mxAnalysisGraph();
         analysisGraph.setGraph(this);
 
+        // Prüfen, ob Graph Kreis enthält.
         if(mxGraphStructure.isCyclicDirected(analysisGraph)) {
             return "Zuvor hinzugefügte Kante induziert einen Kreis!";
         }
 
+        // Start- und Zielknoten sind vom Typ ProcessingFlowComponent.
         if(source instanceof ProcessingFlowComponent && target instanceof ProcessingFlowComponent) {
 
             ProcessingFlowComponent sourceComponent = (ProcessingFlowComponent) source;
             ProcessingFlowComponent targetComponent = (ProcessingFlowComponent) target;
 
+            // Die eigentlichen Komponenten.
             IPFComponent pfSource = sourceComponent.getPFComponent();
             IPFComponent pfTarget = targetComponent.getPFComponent();
 
+            // Ein- und Ausgabe.
             Set<MultiMediaType> outputSet = pfSource.getOutput();
             Set<MultiMediaType> inputSet = pfTarget.getInput();
+
+            /*
+             * Spezielle Prüfungen.
+             */
 
             if(pfSource instanceof AssetElement && pfTarget instanceof AssetElement) {
                 if(pfSource == pfTarget) {
@@ -163,6 +184,9 @@ public class EditorGraph extends mxGraph {
                 }
             }
 
+            /*
+             * Label setzen.
+             */
             if(outputSet == null && inputSet != null) {
                 if(!inputSet.isEmpty()) {
                     ((mxCell) edge).setValue(
@@ -201,6 +225,15 @@ public class EditorGraph extends mxGraph {
         return null;
     }
 
+    /**
+     * Diese Methode setzt das Attribut isStart
+     * für alle anderen Asset-Komponenten im Processing
+     * Flow auf falsch und das Attribut isEnd für alle anderen
+     * Asset-Komponenten auf wahr, außer die angegebene Komponente,
+     * dessen Attribut isStart wahr ist.
+     * @param assetComponent Die Asset-Komponente, die
+     *                       der neue Start ist.
+     */
     public void updateStart(IAssetComponent assetComponent) {
         mxAnalysisGraph aGraph = getAnalysisGraph();
         Arrays.stream(aGraph.getChildCells(getDefaultParent(), true, false))
@@ -216,6 +249,15 @@ public class EditorGraph extends mxGraph {
                 });
     }
 
+    /**
+     * Diese Methode setzt das Attribut isEnd
+     * für alle anderen Asset-Komponenten im Processing
+     * Flow auf falsch und das Attribut isStart für alle anderen
+     * Asset-Komponenten auf wahr, außer die angegebene Komponente,
+     * dessen Attribut isEnd wahr ist.
+     * @param assetComponent Die Asset-Komponente, die
+     *                       das neue Ziel ist.
+     */
     public void updateEnd(IAssetComponent assetComponent) {
         mxAnalysisGraph aGraph = getAnalysisGraph();
         Arrays.stream(aGraph.getChildCells(getDefaultParent(), true, false))
@@ -235,6 +277,8 @@ public class EditorGraph extends mxGraph {
     public void cellsAdded(Object[] cells, Object parent, Integer index, Object source, Object target, boolean absolute, boolean constrain) {
         super.cellsAdded(cells, parent, index, source, target, absolute, constrain);
 
+        // Namen für neue hinzugefügte ProcessingFlowKomponente
+        // setzen.
         Arrays.asList(cells).forEach(e -> {
             if(e instanceof ProcessingFlowComponent) {
                 ProcessingFlowComponent comp = (ProcessingFlowComponent) e;
@@ -249,6 +293,12 @@ public class EditorGraph extends mxGraph {
         });
     }
 
+    /**
+     * Diese Methode zählt die Anzahl von Komponenten
+     * eines bestimmten Typs.
+     * @param clazz Der angegebene zu zählende Typ.
+     * @return Anzahl des Typs.
+     */
     private long countInstances(Class<?> clazz) {
         mxAnalysisGraph analysisGraph = getAnalysisGraph();
         List<Object> extractedCells = Arrays.asList(analysisGraph.getChildCells(getDefaultParent(), true, false));
@@ -265,6 +315,21 @@ public class EditorGraph extends mxGraph {
         return analysisGraph;
     }
 
+    public List<ProcessingFlowComponent> getCells() {
+        return Arrays.stream(getAnalysisGraph().getChildCells(getDefaultParent(), true, false))
+                .filter(cell -> cell instanceof ProcessingFlowComponent)
+                .map(cell -> (ProcessingFlowComponent) cell)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Generiert aus dem Graph eine topologische
+     * Sortierung, die später beim Generieren des
+     * Ablaufs Verwendung findet.
+     * @param vertex Startknoten.
+     * @param visited Bereits besuchte Knoten.
+     * @param stack Aktuelle Abfolge.
+     */
     private void topologialSort(Object vertex, Set<Object> visited, Stack<Object> stack) {
         if(vertex != null) {
             if(visited == null) {
@@ -282,6 +347,12 @@ public class EditorGraph extends mxGraph {
 
     }
 
+    /**
+     * Diese Methode gibt die direkten ausgehenden
+     * Nachbarn einer Zelle zurück.
+     * @param cell Zelle.
+     * @return Direkten Nachbarn.
+     */
     private List<Object> getNeighbours(Object cell) {
         return Arrays.stream(getOutgoingEdges(cell)).map(c -> ((mxCell) c).getTarget()).collect(Collectors.toList());
     }
@@ -297,11 +368,12 @@ public class EditorGraph extends mxGraph {
         Document document = builder.newDocument();
         Object startVertex = getStartVertex();
 
+        // Topologische Sortierung.
         Stack<Object> stack = new Stack<>();
         topologialSort(startVertex, null, stack);
         Collections.reverse(stack);
 
-        System.out.println("Stack: " + stack);
+        System.out.println("Topologische Sortierung: " + stack);
 
         List<Element> pluginDefinitions = new ArrayList<>();
         List<List<Element>> paramDefinitions = new ArrayList<>();
@@ -314,24 +386,6 @@ public class EditorGraph extends mxGraph {
                 .map(o -> (ProcessingFlowComponent) o)
                 .forEach(comp -> {
                     IPFComponent pfComp = comp.getPFComponent();
-                    /*if(pfComp instanceof PluginElement) {
-                        pluginDefinitions.add(((PluginElement) pfComp).generateDefinition(document));
-                        paramDefinitions.add(((PluginElement) pfComp).generateParamDefinition(document));
-                    } else if(pfComp instanceof FusionElement) {
-                        fusionDefinitions.add(((FusionElement) pfComp).generateDefinition(document));
-                        paramDefinitions.add(((FusionElement) pfComp).generateParamDefinition(document));
-                        Element mmfg = document.createElement("mmfg");
-                        String processor = Arrays.stream(getIncomingEdges(comp))
-                                .filter(e -> ((mxCell) e).getSource() instanceof ProcessingFlowComponent)
-                                .map(cell -> (ProcessingFlowComponent) ((mxCell) cell).getSource())
-                                .map(cell -> (IProcessingComponent) cell.getPFComponent())
-                                .map(IProcessingComponent::getName).collect(Collectors.joining(","));
-                        mmfg.setAttribute("processor", processor);
-                        Element fusion = document.createElement("fusion");
-                        fusion.setAttribute("processor", ((FusionElement) pfComp).getName());
-                        sequence.add(mmfg);
-                        sequence.add(fusion);
-                    }*/
                     if(pfComp instanceof IProcessingComponent) {
                         paramDefinitions.add(((IProcessingComponent) pfComp).generateParamDefinition(document));
                         if(pfComp instanceof PluginElement) {
@@ -395,6 +449,10 @@ public class EditorGraph extends mxGraph {
             }
         }
 
+        /*
+         * Dokument zusammenfügen.
+         */
+
         Element root = document.createElement("process-flow");
         document.appendChild(root);
         root.appendChild(document.createComment("Plugin-Definitionen"));
@@ -423,6 +481,11 @@ public class EditorGraph extends mxGraph {
         return document;
     }
 
+    /**
+     * Diese Methode gibt den ersten gefunden
+     * Knoten zurück, der ein Startknoten ist.
+     * @return Startknoten.
+     */
     public Object getStartVertex() {
         mxAnalysisGraph analysisGraph = getAnalysisGraph();
         List<Object> vertices = Arrays.asList(analysisGraph.getChildCells(getDefaultParent(), true, false));

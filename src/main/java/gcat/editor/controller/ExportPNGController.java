@@ -17,6 +17,10 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+/**
+ * Controller zum Exportieren des
+ * Graphen in eine PNG-Datei.
+ */
 public class ExportPNGController implements ActionListener {
 
     private final EditorMainFrame reference;

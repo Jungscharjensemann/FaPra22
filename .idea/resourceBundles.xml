@@ -10,9 +10,11 @@
     <file url="file://$PROJECT_DIR$/src/main/resources/editor_nl.properties" />
     <file url="file://$PROJECT_DIR$/src/main/resources/editor_pt.properties" />
     <file url="file://$PROJECT_DIR$/src/main/resources/editor_ru.properties" />
+    <file url="file://$PROJECT_DIR$/src/main/resources/editor_zh-CN.properties" />
     <custom-resource-bundle>
       <file value="file://$PROJECT_DIR$/src/main/resources/editor.properties" />
       <file value="file://$PROJECT_DIR$/src/main/resources/editor_de.properties" />
+      <file value="file://$PROJECT_DIR$/src/main/resources/editor_en.properties" />
       <file value="file://$PROJECT_DIR$/src/main/resources/editor_es.properties" />
       <file value="file://$PROJECT_DIR$/src/main/resources/editor_fr.properties" />
       <file value="file://$PROJECT_DIR$/src/main/resources/editor_it.properties" />

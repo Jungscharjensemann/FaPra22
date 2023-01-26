@@ -39,7 +39,7 @@ public class SaveAndLoadController implements ActionListener {
                     if(!f.getName().endsWith(".pfgm")) {
                         f = new File(f.getParent() + File.separator + f.getName() + ".pfgm");
                     }
-                    reference.getEditorConsole().insert(String.format("Speichere Datei %s...", f.getName()));
+                    reference.getEditorConsoleModel().insertText(String.format("Speichere Datei %s...", f.getName()));
                     String xml = null;
                     try {
                         xml = xStream.toXML(reference.getEditorGraph().getModel());
@@ -47,16 +47,16 @@ public class SaveAndLoadController implements ActionListener {
                         StringWriter sw = new StringWriter();
                         PrintWriter pw = new PrintWriter(sw);
                         xStreamException.printStackTrace(pw);
-                        reference.getEditorConsole().insert(
+                        reference.getEditorConsoleModel().insertText(
                                 String.format("Fehler beim Speichern der Datei %s", f.getName()));
-                        reference.getEditorConsole().insert(sw.toString());
+                        reference.getEditorConsoleModel().insertText(sw.toString());
                     }
                     FileWriter writer = null;
                     try {
                         writer = new FileWriter(f);
                         if(xml != null) {
                             writer.write(xml);
-                            reference.getEditorConsole().insert(
+                            reference.getEditorConsoleModel().insertText(
                                     String.format("Datei %s gespeichert unter %s", f.getName(), f.getAbsolutePath()));
                         }
                     } catch (IOException ex) {
@@ -80,21 +80,22 @@ public class SaveAndLoadController implements ActionListener {
                 if(result == JFileChooser.APPROVE_OPTION) {
                     f = loadFileChooser.getSelectedFile();
                     if(f.getName().endsWith(".pfgm")) {
-                        reference.getEditorConsole().insert(String.format("Lade Datei %s...", f.getName()));
+                        reference.getEditorConsoleModel().insertText(String.format("Lade Datei %s...", f.getName()));
                         try {
                             Object fromXML = xStream.fromXML(loadFileChooser.getSelectedFile());
-                            reference.getEditorConsole().insert(String.format("Datei %s geladen!", f.getName()));
+                            reference.getEditorConsoleModel().insertText(String.format("Datei %s geladen!", f.getName()));
                             mxGraphModel model = (mxGraphModel) fromXML;
                             reference.getEditorGraph().setModel(model);
+                            reference.getCellTree().update();
                             reference.initModelListeners();
                             reference.getEditorGraph().refresh();
                         } catch(XStreamException xStreamException) {
                             StringWriter sw = new StringWriter();
                             PrintWriter pw = new PrintWriter(sw);
                             xStreamException.printStackTrace(pw);
-                            reference.getEditorConsole().insert(
+                            reference.getEditorConsoleModel().insertText(
                                     String.format("Fehler beim Laden der Datei %s", f.getName()));
-                            reference.getEditorConsole().insert(sw.toString());
+                            reference.getEditorConsoleModel().insertText(sw.toString());
                         }
                     }
                 }

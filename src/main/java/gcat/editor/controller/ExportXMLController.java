@@ -1,7 +1,6 @@
 package gcat.editor.controller;
 
 import com.mxgraph.util.mxCellRenderer;
-import com.mxgraph.util.mxResources;
 import com.mxgraph.util.png.mxPngEncodeParam;
 import com.mxgraph.util.png.mxPngImageEncoder;
 import gcat.editor.util.XmlUtil;
@@ -11,7 +10,6 @@ import gcat.editor.view.filechooser.Filter;
 import org.w3c.dom.Document;
 
 import javax.swing.*;
-import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
@@ -20,6 +18,11 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+/**
+ * Controller zum Exportieren
+ * eines Processing Flows in eine
+ * XML-Datei.
+ */
 public class ExportXMLController implements ActionListener {
 
     private final EditorMainFrame reference;
@@ -52,10 +55,9 @@ public class ExportXMLController implements ActionListener {
                             reference.getEditorGraphComponent().getCanvas());
                     mxPngEncodeParam param = mxPngEncodeParam
                             .getDefaultEncodeParam(image);
-                    FileOutputStream outputStream = null;
+                    FileOutputStream outputStream;
                     try {
-                        outputStream = new FileOutputStream(new File(
-                                "C:\\Users\\Jens\\Downloads\\png_dec.png"));
+                        outputStream = new FileOutputStream(fileChooser.getSelectedFile() + ".xml");
                     } catch (FileNotFoundException ex) {
                         throw new RuntimeException(ex);
                     }

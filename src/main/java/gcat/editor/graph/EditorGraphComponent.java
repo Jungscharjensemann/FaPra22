@@ -23,7 +23,7 @@ public class EditorGraphComponent extends mxGraphComponent {
         super(graph);
         editorGraph = graph;
 
-        // Sets switches typically used in an editor
+        // Visuelle Eigenschaften setzen.
         setPageVisible(true);
         setGridVisible(true);
         setToolTips(true);
@@ -31,13 +31,13 @@ public class EditorGraphComponent extends mxGraphComponent {
         format.setOrientation(PageFormat.LANDSCAPE);
         setPageFormat(format);
 
-        // Loads the defalt stylesheet from an external file
+        // Stylesheet laden.
         mxCodec codec = new mxCodec();
         String uri = Objects.requireNonNull(getClass().getClassLoader().getResource("default-style.xml")).toString();
         Document doc = mxUtils.loadDocument(uri);
         codec.decode(doc.getDocumentElement(), graph.getStylesheet());
 
-        // Sets the background to white
+        // Hintergrund setzen.
         getViewport().setOpaque(true);
         getViewport().setBackground(Color.WHITE);
     }
@@ -52,19 +52,28 @@ public class EditorGraphComponent extends mxGraphComponent {
         return super.getMinimumSize();
     }
 
+    /**
+     * Zellen einfügen. (Übernommen vom Beispiel)
+     * @param cells Zellen.
+     * @param dx X-Position.
+     * @param dy Y-Position.
+     * @param target Ziel-Zelle.
+     * @param location Punkt.
+     * @return Eingefügte Zellen.
+     */
     @Override
     public Object[] importCells(Object[] cells, double dx, double dy, Object target, Point location) {
-        if (target == null && cells.length == 1 && location != null) {
+        if(target == null && cells.length == 1 && location != null) {
             target = getCellAt(location.x, location.y);
 
-            if (target instanceof mxICell && cells[0] instanceof mxICell) {
+            if(target instanceof mxICell && cells[0] instanceof mxICell) {
                 mxICell targetCell = (mxICell) target;
                 mxICell dropCell = (mxICell) cells[0];
 
                 boolean targetVertexValid = targetCell.isVertex() == dropCell.isVertex();
                 boolean targetEdgeValid = targetCell.isEdge() == dropCell.isEdge();
 
-                if (targetVertexValid || targetEdgeValid) {
+                if(targetVertexValid || targetEdgeValid) {
                     mxIGraphModel model = graph.getModel();
                     model.setStyle(target, model.getStyle(cells[0]));
                     graph.setSelectionCell(target);
@@ -87,11 +96,15 @@ public class EditorGraphComponent extends mxGraphComponent {
     @Override
     protected mxConnectionHandler createConnectionHandler() {
         mxConnectionHandler mxConnectionHandler = new mxConnectionHandler(this);
-        // Disable creation of the target, if edge has no specified target.
+        // Keine Kopie erstellen, wenn kein Zielknoten gefunden.
         mxConnectionHandler.setCreateTarget(false);
         return super.createConnectionHandler();
     }
 
+    /**
+     * Eigene Landwand, um Labels besser zu zeichnen.
+     * @return Leinwand.
+     */
     @Override
     public mxInteractiveCanvas createCanvas() {
         return new EditorInteractiveCanvas();

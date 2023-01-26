@@ -62,6 +62,10 @@ public class ExportDialog extends JPanel {
         RTextScrollPane scrollPane = new RTextScrollPane(syntaxTextArea);
         cp.add(scrollPane);
 
+        /*
+         * Listener.
+         */
+
         nameField.getDocument().addDocumentListener((DocumentAdapter) () -> {
             document.getDocumentElement().setAttribute("name", nameField.getText());
             syntaxTextArea.setText(XmlUtil.getXML(document, new StringWriter(), omitCheckBox.isSelected()));

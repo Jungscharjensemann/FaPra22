@@ -9,6 +9,10 @@ import gcat.editor.view.EditorMainFrame;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 
+/**
+ * Klasse zum Kontrollieren von
+ * Eingaben der Tastatur.
+ */
 public class EditorKeyBoardHandler extends mxKeyboardHandler {
 
     private final EditorMainFrame editorMainFrame;
@@ -18,6 +22,11 @@ public class EditorKeyBoardHandler extends mxKeyboardHandler {
         editorMainFrame = editorGraphComponentParent;
     }
 
+    /**
+     * Mapping für die Tastatureingaben.
+     * @param condition Bedingung.
+     * @return InputMap.
+     */
     protected InputMap getInputMap(int condition)
     {
         InputMap map = super.getInputMap(condition);
@@ -31,7 +40,10 @@ public class EditorKeyBoardHandler extends mxKeyboardHandler {
         return map;
     }
 
-
+    /**
+     * Mapping für die Aktionen.
+     * @return ActionMap.
+     */
     protected ActionMap createActionMap()
     {
         ActionMap map = super.createActionMap();
@@ -44,6 +56,9 @@ public class EditorKeyBoardHandler extends mxKeyboardHandler {
         return map;
     }
 
+    /**
+     * Undo/Redo-Aktion.
+     */
     class UndoRedoAction extends AbstractAction {
 
         private final boolean undo;
