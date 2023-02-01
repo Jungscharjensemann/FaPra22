@@ -31,6 +31,8 @@ public class CellEditor extends JPanel {
      */
     private final PropertyTableModel propertyTableModel;
 
+    private final JScrollPane propertyScrollPane;
+
     /**
      * Panel für Parameter.
      */
@@ -45,14 +47,16 @@ public class CellEditor extends JPanel {
         setLayout(new MigLayout("", "[grow]", "[]"));
         setBorder(new TitledBorder("Cell Editor"));
 
-        JScrollPane propertyScrollPane = new JScrollPane();
+        propertyScrollPane = new JScrollPane();
         propertyScrollPane.setBorder(new TitledBorder("Eigenschaften"));
+        propertyScrollPane.setVisible(false);
 
         // Table für die Eigenschaften einer Komponente.
         CellPropertyTable propertyTable = new CellPropertyTable();
         propertyTable.getTableHeader().setDefaultRenderer(new HeaderRenderer(propertyTable.getTableHeader()));
         propertyTableModel = new PropertyTableModel(reference);
         propertyTable.setModel(propertyTableModel);
+
 
         propertyScrollPane.setViewportView(propertyTable);
         add(propertyScrollPane, "cell 0 2, growx");
@@ -144,6 +148,7 @@ public class CellEditor extends JPanel {
         if(component != null) {
             this.component = component;
             propertyTableModel.setCurentIPFComponent(component);
+            propertyScrollPane.setVisible(true);
             // Notwendig.
             revalidate();
             if(component instanceof IProcessingComponent) {
@@ -153,6 +158,7 @@ public class CellEditor extends JPanel {
                 parameterPanel.setVisible(false);
             }
         } else {
+            propertyScrollPane.setVisible(false);
             propertyTableModel.setCurentIPFComponent(null);
             parameterTableModel.setParameters(null);
             parameterPanel.setVisible(false);

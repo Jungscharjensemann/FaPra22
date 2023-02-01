@@ -34,7 +34,7 @@ public class EditorConsole extends JPanel implements ITextInsertListener {
         rSyntaxTextArea.setCodeFoldingEnabled(true);
         rSyntaxTextArea.setEditable(false);
 
-        RTextScrollPane scrollPane = new RTextScrollPane(rSyntaxTextArea);
+        RTextScrollPane rTextScrollPane = new RTextScrollPane(rSyntaxTextArea);
 
         JToolBar toolBar = new JToolBar();
         toolBar.setFloatable(false);
@@ -53,7 +53,7 @@ public class EditorConsole extends JPanel implements ITextInsertListener {
         toolBar.add(clearButton);
 
         add(toolBar, BorderLayout.NORTH);
-        add(scrollPane, BorderLayout.CENTER);
+        add(rTextScrollPane, BorderLayout.CENTER);
     }
 
     /**
@@ -80,5 +80,10 @@ public class EditorConsole extends JPanel implements ITextInsertListener {
         if(rSyntaxTextArea != null) {
             rSyntaxTextArea.setText("");
         }
+    }
+
+    @Override
+    public Dimension getPreferredSize() {
+        return super.getMinimumSize();
     }
 }

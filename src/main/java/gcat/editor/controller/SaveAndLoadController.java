@@ -85,10 +85,13 @@ public class SaveAndLoadController implements ActionListener {
                             Object fromXML = xStream.fromXML(loadFileChooser.getSelectedFile());
                             reference.getEditorConsoleModel().insertText(String.format("Datei %s geladen!", f.getName()));
                             mxGraphModel model = (mxGraphModel) fromXML;
+                            // TODO: In neuer Methode in EditorMainFrame
+                            //  zusammenführen?
                             reference.getEditorGraph().setModel(model);
                             reference.getCellTree().update();
                             reference.initModelListeners();
                             reference.getEditorGraph().refresh();
+                            reference.getEditorGraphComponent().validateGraph();
                         } catch(XStreamException xStreamException) {
                             StringWriter sw = new StringWriter();
                             PrintWriter pw = new PrintWriter(sw);

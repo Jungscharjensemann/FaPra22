@@ -22,6 +22,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static j2html.TagCreator.*;
@@ -38,6 +39,7 @@ public class EditorGraph extends mxGraph {
         setKeepEdgesInBackground(true);
         setCellsEditable(false);
         setCellsResizable(false);
+        setSwimlaneNesting(false);
     }
 
     /**
@@ -122,11 +124,13 @@ public class EditorGraph extends mxGraph {
                 ).attr("border", "1");
             }
             html = html(
-                    p(b(u(component.getLabel()))).attr("align", "center"),
-                    br(),
-                    propertyTable,
-                    br(),
-                    parameterTable
+                    body(
+                            p(b(u(component.getLabel()))).attr("align", "center"),
+                            br(),
+                            propertyTable,
+                            br(),
+                            parameterTable
+                    )
             );
         }
         return html.render();
@@ -142,7 +146,7 @@ public class EditorGraph extends mxGraph {
      */
     @Override
     public String validateEdge(Object edge, Object source, Object target) {
-        System.out.printf("Validating %s with source %s and target %s%n", edge, source, target);
+        System.out.printf("Validating edge with source %s and target %s%n", source, target);
 
         // Analysis Graph zum Analysieren des Graphen.
         mxAnalysisGraph analysisGraph = new mxAnalysisGraph();
@@ -309,7 +313,7 @@ public class EditorGraph extends mxGraph {
                 .filter(pfComp -> pfComp.getPFComponent().getClass().isAssignableFrom(clazz)).count();
     }
 
-    private mxAnalysisGraph getAnalysisGraph() {
+    public mxAnalysisGraph getAnalysisGraph() {
         mxAnalysisGraph analysisGraph = new mxAnalysisGraph();
         analysisGraph.setGraph(this);
         return analysisGraph;
@@ -387,40 +391,61 @@ public class EditorGraph extends mxGraph {
                 .forEach(comp -> {
                     IPFComponent pfComp = comp.getPFComponent();
                     if(pfComp instanceof IProcessingComponent) {
+
+                        /*
+                         * Definitionen sammeln.
+                         */
+
                         paramDefinitions.add(((IProcessingComponent) pfComp).generateParamDefinition(document));
                         if(pfComp instanceof PluginElement) {
                             pluginDefinitions.add(((PluginElement) pfComp).generateDefinition(document));
                         } else if(pfComp instanceof FusionElement) {
                             fusionDefinitions.add(((FusionElement) pfComp).generateDefinition(document));
                         }
-                        long count = Arrays.stream(getIncomingEdges(comp))
-                                .filter(e -> ((mxCell) e).getSource() instanceof ProcessingFlowComponent)
-                                .map(cell -> (ProcessingFlowComponent) ((mxCell) cell).getSource())
+
+                        // Funktion zum Zählen von Processing-Komponenten.
+                        Function<List<Object>, Long> countFunction = l -> l.stream()
+                                .filter(c -> ((mxCell) c).getSource() instanceof ProcessingFlowComponent)
+                                .map(c -> (ProcessingFlowComponent) ((mxCell) c).getSource())
                                 .map(ProcessingFlowComponent::getPFComponent)
-                                .filter(cell -> cell instanceof IProcessingComponent).count();
+                                .filter(c -> c instanceof IProcessingComponent)
+                                .count();
+
+                        // Funktion zum Konkatenieren der Namen
+                        // mehrerer Processing-Komponenten.
+                        Function<List<Object>, String> joinFunction = l -> l.stream()
+                                .filter(c -> ((mxCell) c).getSource() instanceof ProcessingFlowComponent)
+                                .map(c -> (ProcessingFlowComponent) ((mxCell) c).getSource())
+                                .map(c -> (IProcessingComponent) c.getPFComponent())
+                                .map(IProcessingComponent::getName)
+                                .collect(Collectors.joining(","));
+
+                        List<Object> inEdges = Arrays.asList(getIncomingEdges(comp));
+
+                        // Anzahl an Processing-Komponenten, die eine eingehende
+                        // Verbindung zum aktuellen Knoten haben.
+                        long count = countFunction.apply(inEdges);
                         if(count > 0) {
                             if(pfComp instanceof PluginElement) {
-                                Element text = document.createElement("text");
-                                String processor = Arrays.stream(getIncomingEdges(comp))
-                                        .filter(e -> ((mxCell) e).getSource() instanceof ProcessingFlowComponent)
-                                        .map(cell -> (ProcessingFlowComponent) ((mxCell) cell).getSource())
-                                        .map(cell -> (IProcessingComponent) cell.getPFComponent())
-                                        .map(IProcessingComponent::getName).collect(Collectors.joining(","));
-                                text.setAttribute("preprocessor", processor);
+                                // MMFG Element.
+                                Element mmfg = document.createElement("mmfg");
+                                String processor = joinFunction.apply(inEdges);
+                                mmfg.setAttribute("processor", processor);
+                                // Plugin Element.
                                 Element plugin = document.createElement("mmfg");
                                 plugin.setAttribute("processor", ((PluginElement) pfComp).getName());
-                                sequence.add(text);
+                                // Zur Sequenz (Ablauf) hinzufügen.
+                                sequence.add(mmfg);
                                 sequence.add(plugin);
                             } else if(pfComp instanceof FusionElement) {
+                                // MMFG Element
                                 Element mmfg = document.createElement("mmfg");
-                                String processor = Arrays.stream(getIncomingEdges(comp))
-                                        .filter(e -> ((mxCell) e).getSource() instanceof ProcessingFlowComponent)
-                                        .map(cell -> (ProcessingFlowComponent) ((mxCell) cell).getSource())
-                                        .map(cell -> (IProcessingComponent) cell.getPFComponent())
-                                        .map(IProcessingComponent::getName).collect(Collectors.joining(","));
+                                String processor = joinFunction.apply(inEdges);
                                 mmfg.setAttribute("processor", processor);
+                                // Fusion Element
                                 Element fusion = document.createElement("fusion");
                                 fusion.setAttribute("processor", ((FusionElement) pfComp).getName());
+                                // Zur Sequenz (Ablauf) hinzufügen.
                                 sequence.add(mmfg);
                                 sequence.add(fusion);
                             }

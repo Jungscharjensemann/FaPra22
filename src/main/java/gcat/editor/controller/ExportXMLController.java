@@ -47,7 +47,8 @@ public class ExportXMLController implements ActionListener {
                 }
             }
         } else {
-            JOptionPane.showMessageDialog(null, "Erstellter Graph ist nicht valide!",
+            JOptionPane.showMessageDialog(
+                    null, "Erstellter Graph ist nicht valide!",
                     "Fehler beim Exportieren!", JOptionPane.ERROR_MESSAGE);
         }
     }

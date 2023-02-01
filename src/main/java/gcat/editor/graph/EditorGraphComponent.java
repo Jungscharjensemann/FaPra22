@@ -9,6 +9,7 @@ import com.mxgraph.swing.mxGraphComponent;
 import com.mxgraph.swing.view.mxInteractiveCanvas;
 import com.mxgraph.util.mxUtils;
 import gcat.editor.canvas.EditorInteractiveCanvas;
+import gcat.editor.graph.processingflow.components.processing.ProcessingFlowComponent;
 import org.w3c.dom.Document;
 
 import java.awt.*;
@@ -30,6 +31,9 @@ public class EditorGraphComponent extends mxGraphComponent {
         PageFormat format = new PageFormat();
         format.setOrientation(PageFormat.LANDSCAPE);
         setPageFormat(format);
+        setZoomPolicy(ZOOM_POLICY_PAGE);
+        setCenterZoom(true);
+        setCenterPage(true);
 
         // Stylesheet laden.
         mxCodec codec = new mxCodec();
@@ -44,7 +48,7 @@ public class EditorGraphComponent extends mxGraphComponent {
 
     @Override
     protected Dimension getPreferredSizeForPage() {
-        return new Dimension(getWidth(), getHeight());
+        return new Dimension(getWidth(), getHeight() - 15);
     }
 
     @Override
@@ -65,6 +69,10 @@ public class EditorGraphComponent extends mxGraphComponent {
     public Object[] importCells(Object[] cells, double dx, double dy, Object target, Point location) {
         if(target == null && cells.length == 1 && location != null) {
             target = getCellAt(location.x, location.y);
+
+            if(target instanceof ProcessingFlowComponent) {
+                return super.importCells(new Object[]{ cells[0] }, dx, dy, graph.getCurrentRoot(), location);
+            }
 
             if(target instanceof mxICell && cells[0] instanceof mxICell) {
                 mxICell targetCell = (mxICell) target;

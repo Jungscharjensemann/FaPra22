@@ -5,10 +5,6 @@ import gcat.editor.graph.processingflow.components.processing.interfaces.IPFComp
 
 public class ProcessingFlowComponent extends mxCell {
 
-    //TODO: Interface IPFComponent oder so hinzufügen,
-    // um einfaches hinzufügen und testen und casten
-    // in Controllern zu ermöglichen.
-
     private final IPFComponent component;
 
     public ProcessingFlowComponent(IPFComponent comp) {
@@ -18,5 +14,14 @@ public class ProcessingFlowComponent extends mxCell {
 
     public IPFComponent getPFComponent() {
         return component;
+    }
+
+    @Override
+    public String toString() {
+        return component.getClass().getSimpleName() +
+                "(" +
+                String.format("id=%s", getId()) +
+                String.format(", label=%s", component.getLabel()) +
+                ")";
     }
 }

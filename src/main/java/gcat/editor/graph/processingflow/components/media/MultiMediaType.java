@@ -2,6 +2,7 @@ package gcat.editor.graph.processingflow.components.media;
 
 public enum MultiMediaType {
 
+    // Werden benutzt, nicht löschen.
     DOC("doc"),
     DOCX("docx"),
     RSS("rss"),

@@ -58,6 +58,7 @@ public class EditorPalette extends JXTaskPane {
                 return true;
             }
         });
+        setSpecial(true);
     }
 
     /**
