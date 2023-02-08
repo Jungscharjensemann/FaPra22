@@ -1,10 +1,13 @@
 package gcat.editor.view.celleditor.model;
 
+import gcat.editor.graph.EditorGraph;
 import gcat.editor.graph.processingflow.components.asset.IAssetComponent;
+import gcat.editor.graph.processingflow.components.processing.ProcessingFlowComponent;
 import gcat.editor.graph.processingflow.components.processing.interfaces.IPFComponent;
 import gcat.editor.graph.processingflow.components.processing.interfaces.IProcessingComponent;
 import gcat.editor.view.EditorMainFrame;
 
+import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 
 public class PropertyTableModel extends DefaultTableModel {
@@ -15,8 +18,11 @@ public class PropertyTableModel extends DefaultTableModel {
 
     private final EditorMainFrame editorMainFrame;
 
+    private final EditorGraph editorGraph;
+
     public PropertyTableModel(EditorMainFrame reference) {
         editorMainFrame = reference;
+        editorGraph = reference.getEditorGraph();
         setColumnIdentifiers(columnIdentifiers);
     }
 
@@ -143,16 +149,50 @@ public class PropertyTableModel extends DefaultTableModel {
                             ((IAssetComponent) component).setLocation(String.valueOf(aValue));
                             break;
                         case 3:
-                            ((IAssetComponent) component).setStart((Boolean) aValue);
-                            ((IAssetComponent) component).setEnd(!((IAssetComponent) component).isStart());
-                            editorMainFrame.getEditorGraph().updateStart((IAssetComponent) component);
-                            fireTableCellUpdated(4, 1);
+                            // Es kann nur ein Knoten im Graphen als Startknoten markiert werden.
+                            // Anzahl an vorhandenen Startknoten.
+                            long starts = editorGraph.numberOfStartVertices();
+                            // Der erste gefundene Startknoten.
+                            Object startVertex = editorGraph.getStartVertex();
+                            if(startVertex instanceof ProcessingFlowComponent) {
+                                // Startknoten ist nicht aktuelle im Editor gezeigte Komponente.
+                                if(((ProcessingFlowComponent) startVertex).getPFComponent() != component) {
+                                    // Startknoten bereits gesetzt?
+                                    if(starts > 0) {
+                                        // Startknoten schon vorhanden, Fehler!
+                                        JOptionPane.showMessageDialog(null, "Es kann nur ein " +
+                                                "Startknoten definiert werden!");
+                                    } else {
+                                        // Noch kein Startknoten → Start gesetzt und End genaues Gegenteil.
+                                        ((IAssetComponent) component).setStart((Boolean) aValue);
+                                        ((IAssetComponent) component).setEnd(!((IAssetComponent) component).isStart());
+                                    }
+                                }
+                                // Startknoten ist aktuelle im Editor gezeigte Komponente.
+                                else {
+                                    // Start setzen.
+                                    ((IAssetComponent) component).setStart((Boolean) aValue);
+                                }
+                            }
+                            // Kein Startknoten vorhanden.
+                            else if(startVertex == null) {
+                                // Start setzen → End genaues Gegenteil.
+                                ((IAssetComponent) component).setStart((Boolean) aValue);
+                                ((IAssetComponent) component).setEnd(!((IAssetComponent) component).isStart());
+                            }
+                            /* ((IAssetComponent) component).setStart((Boolean) aValue);
+                            //((IAssetComponent) component).setEnd(!((IAssetComponent) component).isStart());
+                            //editorMainFrame.getEditorGraph().updateStart((IAssetComponent) component);
+                            //fireTableCellUpdated(4, 1); */
+                            fireTableDataChanged();
                             break;
                         case 4:
+                            // Mehrere Knoten im Graphen können Endknoten sein.
                             ((IAssetComponent) component).setEnd((Boolean) aValue);
-                            ((IAssetComponent) component).setStart(!((IAssetComponent) component).isEnd());
-                            editorMainFrame.getEditorGraph().updateEnd((IAssetComponent) component);
-                            fireTableCellUpdated(3, 1);
+                            ((IAssetComponent) component).setStart(false);
+                            /* editorMainFrame.getEditorGraph().updateEnd((IAssetComponent) component);
+                            fireTableCellUpdated(3, 1); */
+                            fireTableDataChanged();
                             break;
                     }
                 }

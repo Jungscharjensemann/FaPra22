@@ -27,12 +27,14 @@ public class ExportXMLController implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         String error = reference.getEditorGraphComponent().validateGraph();
-        if(error == null) {
+        Object startVertex = reference.getEditorGraph().getStartVertex();
+        if(error == null && startVertex != null) {
             Document source = reference.getEditorGraph().createDocument();
             ExportDialog exportDialog = new ExportDialog(source);
             int optionDialog = JOptionPane.showOptionDialog(null, exportDialog, "Ergebnis",
-                    JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, new Object[] {"Exportieren", "Abbrechen"}, null);
-            if(optionDialog == 0) {
+                    JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null,
+                    new Object[] {"Exportieren", "Abbrechen"}, null);
+            if(optionDialog == JOptionPane.YES_NO_OPTION) {
                 JFileChooser fileChooser = new JFileChooser();
                 Filter filter = new Filter(".xml", ".xml (Extensible Markup Language)");
                 fileChooser.addChoosableFileFilter(filter);

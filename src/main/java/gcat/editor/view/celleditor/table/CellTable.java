@@ -33,7 +33,7 @@ public class CellTable extends JTable {
 
     @Override
     public Dimension getPreferredScrollableViewportSize() {
-        return new Dimension(getPreferredSize().width, getRowHeight() * getRowCount());
+        return new Dimension(getPreferredSize().width, getRowHeight() * (Math.min(getRowCount(), 5)));
     }
 
 }

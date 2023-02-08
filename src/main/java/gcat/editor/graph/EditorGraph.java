@@ -29,6 +29,8 @@ import static j2html.TagCreator.*;
 
 public class EditorGraph extends mxGraph {
 
+    private boolean tooltipsEnabled = true;
+
     public EditorGraph() {
         // Eigenschaften des Graphen setzen.
         setAllowLoops(true);
@@ -40,6 +42,14 @@ public class EditorGraph extends mxGraph {
         setCellsEditable(false);
         setCellsResizable(false);
         setSwimlaneNesting(false);
+    }
+
+    public void setTooltipsEnabled(boolean enable) {
+        this.tooltipsEnabled = enable;
+    }
+
+    public boolean isTooltipsEnabled() {
+        return tooltipsEnabled;
     }
 
     /**
@@ -113,11 +123,11 @@ public class EditorGraph extends mxGraph {
                                         td(((IAssetComponent) component).getLocation())
                                 ),
                                 tr(
-                                        td("isStart"),
+                                        td("Startknoten"),
                                         td(((IAssetComponent) component).isStart() ? "wahr" : "falsch")
                                 ),
                                 tr(
-                                        td("isEnd"),
+                                        td("Endknoten"),
                                         td(((IAssetComponent) component).isEnd() ? "wahr" : "falsch")
                                 )
                         )
@@ -132,8 +142,32 @@ public class EditorGraph extends mxGraph {
                             parameterTable
                     )
             );
+        } else if(cell instanceof mxCell){
+            html = html(
+                    head(
+                            meta().withCharset("UTF-8")
+                    ),
+                    body(
+                            table(
+                                    thead(
+                                            tr(
+                                                    th("Quelle"),
+                                                    th(""),
+                                                    th("Ziel")
+                                            )
+                                    ),
+                                    tbody(
+                                            tr(
+                                                    td(((mxCell) cell).getSource().toString()),
+                                                    td(p("\uD83E\uDC9C".repeat(5) + "\u27A4")),
+                                                    td(((mxCell) cell).getTarget().toString())
+                                            )
+                                    )
+                            )
+                    )
+            );
         }
-        return html.render();
+        return isTooltipsEnabled() ? html.render() : null;
     }
 
     /**
@@ -238,6 +272,7 @@ public class EditorGraph extends mxGraph {
      * @param assetComponent Die Asset-Komponente, die
      *                       der neue Start ist.
      */
+    @SuppressWarnings("unused")
     public void updateStart(IAssetComponent assetComponent) {
         mxAnalysisGraph aGraph = getAnalysisGraph();
         Arrays.stream(aGraph.getChildCells(getDefaultParent(), true, false))
@@ -262,6 +297,7 @@ public class EditorGraph extends mxGraph {
      * @param assetComponent Die Asset-Komponente, die
      *                       das neue Ziel ist.
      */
+    @SuppressWarnings("unused")
     public void updateEnd(IAssetComponent assetComponent) {
         mxAnalysisGraph aGraph = getAnalysisGraph();
         Arrays.stream(aGraph.getChildCells(getDefaultParent(), true, false))
@@ -480,6 +516,11 @@ public class EditorGraph extends mxGraph {
 
         Element root = document.createElement("process-flow");
         document.appendChild(root);
+        // Standard-Werte setzen.
+        root.setAttribute("extension", ".?");
+        root.setAttribute("isGeneral", String.valueOf(false));
+        root.setAttribute("name", "Standard-Name");
+
         root.appendChild(document.createComment("Plugin-Definitionen"));
         for(Element e : pluginDefinitions) {
             root.appendChild(e);
@@ -528,5 +569,17 @@ public class EditorGraph extends mxGraph {
         }).findFirst();
 
         return optional.orElse(null);
+    }
+
+    public long numberOfStartVertices() {
+        return getCells().stream().map(ProcessingFlowComponent::getPFComponent)
+                .filter(c -> c instanceof IAssetComponent)
+                .filter(c -> ((IAssetComponent) c).isStart()).count();
+    }
+
+    @SuppressWarnings("unused")
+    public long numberOfEndVertices() {
+        return getCells().stream().map(ProcessingFlowComponent::getPFComponent)
+                .filter(c -> ((IAssetComponent) c).isEnd()).count();
     }
 }

@@ -99,7 +99,7 @@ public class CellEditor extends JPanel {
             if(component != null) {
                 if(component instanceof IProcessingComponent) {
                     if(!keyField.getText().isEmpty() && !valueField.getText().isEmpty()) {
-                        ((IProcessingComponent) component).addParameter(keyField.getText(), valueField.getText());
+                        ((IProcessingComponent) component).addParameter(keyField.getText().trim(), valueField.getText().trim());
                         setParameters(((IProcessingComponent) component).getParameters());
                     }
                 }
@@ -110,7 +110,7 @@ public class CellEditor extends JPanel {
             if(component != null) {
                 if(component instanceof IProcessingComponent) {
                     if(!keyField.getText().isEmpty()) {
-                        ((IProcessingComponent) component).removeParameter(keyField.getText());
+                        ((IProcessingComponent) component).removeParameter(keyField.getText().trim());
                         setParameters(((IProcessingComponent) component).getParameters());
                     }
                 }

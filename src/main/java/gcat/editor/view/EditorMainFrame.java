@@ -280,6 +280,15 @@ public class EditorMainFrame extends JFrame {
 
         menuBar.add(languageMenu);*/
 
+        JMenu helpMenu = new JMenu("Hilfe");
+
+        JMenuItem aboutMenuItem = new JMenuItem("Info");
+        aboutMenuItem.addActionListener(new InfoController());
+
+        helpMenu.add(aboutMenuItem);
+
+        menuBar.add(helpMenu);
+
         setJMenuBar(menuBar);
     }
 
@@ -487,10 +496,10 @@ public class EditorMainFrame extends JFrame {
                         // Liste an Paletten.
                         ArrayList<EditorPalette> paletteList = new ArrayList<>();
                         {
+                            // Alphabetisch sortierte Paletten.
                             paletteList.add(new FusionPalette());
 
                             // Weitere Paletten für eventuelle Extensions, Filter etc.
-
                             paletteList.add(new AssetPalette());
                             paletteList.add(new AlgorithmicPalette());
                             paletteList.add(new AudioPalette());
@@ -540,7 +549,12 @@ public class EditorMainFrame extends JFrame {
                     zoomCenterButton.setSize(new Dimension(30, 15));
                     zoomCenterButton.addActionListener(e -> editorGraphComponent.zoom(true, true));
 
+                    JCheckBox tooltipCheckBox = new JCheckBox("ToolTips");
+                    tooltipCheckBox.setSelected(true);
+                    tooltipCheckBox.addActionListener(e -> editorGraph.setTooltipsEnabled(tooltipCheckBox.isSelected()));
+
                     graphToolbar.add(zoomCenterButton);
+                    graphToolbar.add(tooltipCheckBox);
 
                     graphPanel.add(graphToolbar, BorderLayout.NORTH);
                     graphPanel.add(editorGraphComponent, BorderLayout.CENTER);

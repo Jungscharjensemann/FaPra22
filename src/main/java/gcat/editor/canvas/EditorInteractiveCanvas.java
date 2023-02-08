@@ -44,7 +44,7 @@ public class EditorInteractiveCanvas extends mxInteractiveCanvas {
             Rectangle labelBounds = state.getLabelBounds().getRectangle();
 
             // Feste Höhe.
-            labelBounds.height = 15;
+            labelBounds.height = (int) (15 * getScale());
             paintRectangle(labelBounds, bg, border);
 
             // Paints the label and restores the graphics object
