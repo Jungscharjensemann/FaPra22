@@ -28,7 +28,8 @@ public class ExportXMLController implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         String error = reference.getEditorGraphComponent().validateGraph();
         Object startVertex = reference.getEditorGraph().getStartVertex();
-        if(error == null && startVertex != null) {
+        boolean hasEnd = reference.getEditorGraph().hasAnEndVertex();
+        if(error == null && startVertex != null && hasEnd) {
             Document source = reference.getEditorGraph().createDocument();
             ExportDialog exportDialog = new ExportDialog(source);
             int optionDialog = JOptionPane.showOptionDialog(null, exportDialog, "Ergebnis",
@@ -49,8 +50,18 @@ public class ExportXMLController implements ActionListener {
                 }
             }
         } else {
+            StringBuilder sbError = new StringBuilder();
+            if(startVertex == null) {
+                sbError.append("\n\u2022 Kein Startknoten wurde definiert!\nBitte Startknoten definieren!");
+            }
+            if(!hasEnd) {
+                sbError.append("\n\u2022 Kein Endknoten gefunden!\nEs muss mindestens 1 Endknoten markiert werden!");
+            }
+            if(error != null) {
+                sbError.append("\n\u2022 ").append(error);
+            }
             JOptionPane.showMessageDialog(
-                    null, "Erstellter Graph ist nicht valide!",
+                    null, "Erstellter Graph ist nicht valide!\nFehler:\n" + sbError,
                     "Fehler beim Exportieren!", JOptionPane.ERROR_MESSAGE);
         }
     }

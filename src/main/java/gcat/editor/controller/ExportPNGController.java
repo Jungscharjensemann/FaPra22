@@ -48,7 +48,7 @@ public class ExportPNGController implements ActionListener {
                     mxCellRenderer.createBufferedImage(
                             graph,
                             null, 1,
-                            graphComponent.getBackground(),
+                            null, // null -> transparent.
                             graphComponent.isAntiAlias(),
                             null,
                             graphComponent.getCanvas());
