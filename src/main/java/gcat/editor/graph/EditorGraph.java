@@ -2,7 +2,6 @@ package gcat.editor.graph;
 
 import com.google.common.collect.Sets;
 import com.mxgraph.analysis.mxAnalysisGraph;
-import com.mxgraph.analysis.mxGraphStructure;
 import com.mxgraph.model.mxCell;
 import com.mxgraph.view.mxGraph;
 import gcat.editor.graph.processingflow.components.asset.AssetElement;
@@ -13,6 +12,7 @@ import gcat.editor.graph.processingflow.components.processing.fusion.FusionEleme
 import gcat.editor.graph.processingflow.components.processing.interfaces.IPFComponent;
 import gcat.editor.graph.processingflow.components.processing.interfaces.IProcessingComponent;
 import gcat.editor.graph.processingflow.components.processing.plugin.PluginElement;
+import gcat.editor.graph.structure.GraphStructure;
 import j2html.tags.specialized.HtmlTag;
 import j2html.tags.specialized.TableTag;
 import org.w3c.dom.Document;
@@ -41,6 +41,7 @@ public class EditorGraph extends mxGraph {
         setKeepEdgesInBackground(true);
         setCellsEditable(false);
         setCellsResizable(false);
+        setSplitEnabled(false);
         setSwimlaneNesting(false);
     }
 
@@ -186,10 +187,24 @@ public class EditorGraph extends mxGraph {
         mxAnalysisGraph analysisGraph = new mxAnalysisGraph();
         analysisGraph.setGraph(this);
 
-        // Prüfen, ob Graph Kreis enthält.
-        if(mxGraphStructure.isCyclicDirected(analysisGraph)) {
-            return "Zuvor hinzugefügte Kante induziert einen Kreis!";
+        List<Object> remainingEdgesAfterCycleCheck = GraphStructure.cycleCheck(analysisGraph);
+        boolean edgeInCycle = remainingEdgesAfterCycleCheck.stream()
+                .anyMatch(o -> {
+                    if(o instanceof mxCell) {
+                        if(((mxCell) o).isEdge() && edge instanceof mxCell) {
+                            return ((mxCell) o).getId().equals(((mxCell) edge).getId());
+                        }
+                    }
+                    return false;
+                });
+
+        if(edgeInCycle) {
+            return "Kante ist Teil eines Kreises!";
         }
+
+        // Prüfen, ob Graph Kreis enthält.
+        // (Veraltet, da hier nach Entdecken eines Kreises alle Kanten
+        // als im Kreis enthalten markiert werden.)
 
         // Start- und Zielknoten sind vom Typ ProcessingFlowComponent.
         if(source instanceof ProcessingFlowComponent && target instanceof ProcessingFlowComponent) {
@@ -217,7 +232,7 @@ public class EditorGraph extends mxGraph {
             }
             if(pfSource instanceof AssetElement && pfTarget instanceof IProcessingComponent) {
                 if(((AssetElement) pfSource).isEnd()) {
-                    return "Als Endknoten markiertes Asset kann nicht mit \n" +
+                    return "Als Endknoten markiertes Asset kann nicht mit " +
                             "anderen Komponenten verbunden werden!";
                 }
             }
@@ -322,12 +337,17 @@ public class EditorGraph extends mxGraph {
         Arrays.asList(cells).forEach(e -> {
             if(e instanceof ProcessingFlowComponent) {
                 ProcessingFlowComponent comp = (ProcessingFlowComponent) e;
-                IPFComponent processingComponent = comp.getPFComponent();
-                if(processingComponent instanceof PluginElement) {
-                    ((PluginElement) processingComponent).setName(String.format("plugin%s", countInstances(PluginElement.class)));
+                IPFComponent component = comp.getPFComponent();
+                if(component instanceof PluginElement) {
+                    ((PluginElement) component).setName(String.format("plugin%s", countInstances(PluginElement.class)));
                 }
-                if(processingComponent instanceof FusionElement) {
-                    ((FusionElement) processingComponent).setName(String.format("merge%s", countInstances(FusionElement.class)));
+                if(component instanceof FusionElement) {
+                    ((FusionElement) component).setName(String.format("merge%s", countInstances(FusionElement.class)));
+                }
+                if(component instanceof AssetElement) {
+                    AssetElement asset = (AssetElement) component;
+                    String type = asset.getType();
+                    asset.setName(String.format("asset%s_%s", countInstances(AssetElement.class), type));
                 }
             }
         });
@@ -569,6 +589,13 @@ public class EditorGraph extends mxGraph {
         }).findFirst();
 
         return optional.orElse(null);
+    }
+
+    public boolean hasAnEndVertex() {
+        return getCells().stream()
+                .map(ProcessingFlowComponent::getPFComponent)
+                .filter(c -> c instanceof IAssetComponent)
+                .map(c -> (IAssetComponent) c).anyMatch(IAssetComponent::isEnd);
     }
 
     public long numberOfStartVertices() {
