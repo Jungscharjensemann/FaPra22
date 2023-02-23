@@ -5,8 +5,8 @@ import com.mxgraph.model.mxGeometry;
 public enum EnumAsset {
 
     COLLECTION("Collection", "folder", "collectionVertex", "collection.png", new mxGeometry(0, 0, 100, 40)),
-    WATCHFOLDER("Watchfolder", "folder", "watchfolderVertex", "collection.png", new mxGeometry(0, 0, 100, 40)),
-    DATABASE("SQL-DB", "database", "databaseVertex", "collection.png", new mxGeometry(0, 0, 80, 60));
+    WATCHFOLDER("Watchfolder", "folder", "watchfolderVertex", "watchfolder.png", new mxGeometry(0, 0, 100, 40)),
+    DATABASE("SQL-DB", "database", "databaseVertex", "sql_db.png", new mxGeometry(0, 0, 80, 60));
 
     private final String label, style, icon;
     private String type;

@@ -11,5 +11,6 @@ public class AssetPalette extends EditorPalette {
 
         addFolderTemplate(new AssetElement(EnumAsset.COLLECTION));
         addFolderTemplate(new AssetElement(EnumAsset.DATABASE));
+        addFolderTemplate(new AssetElement(EnumAsset.WATCHFOLDER));
     }
 }
