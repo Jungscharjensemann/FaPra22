@@ -13,7 +13,7 @@ import gcat.editor.graph.processingflow.components.media.MultiMediaType;
 import gcat.editor.graph.processingflow.components.processing.ProcessingFlowComponent;
 import gcat.editor.graph.processingflow.components.processing.fusion.FusionElement;
 import gcat.editor.graph.processingflow.components.processing.plugin.PluginElement;
-import graph_editor.editor.ShadowBorder;
+import gcat.editor.view.border.ShadowBorder;
 import org.jdesktop.swingx.JXTaskPane;
 import org.jdesktop.swingx.WrapLayout;
 
